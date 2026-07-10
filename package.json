@@ -1,6 +1,6 @@
 {
   "name": "premio-cripto",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Monitor open-source de prêmio (spread %) de criptomoedas entre exchanges globais e locais — arbitragem em tempo real",
   "type": "module",
   "main": "server.js",

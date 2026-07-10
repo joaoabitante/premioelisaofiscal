@@ -3,6 +3,16 @@
 Todas as mudanças relevantes do **Prêmio Cripto** são registradas aqui.
 O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/) e o versionamento é [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.5.0] — 2026-07-09
+
+### Adicionado
+- **Calculadora tributária de ganho de capital** (pessoa física, pt-BR), lado a lado:
+  - **Exchange nacional**: isenção se o total de alienações de cripto no mês for ≤ R$ 35.000; acima disso, IR progressivo de 15% a 22,5% (GCAP / DARF 4600)
+  - **Exchange no exterior**: sem isenção de R$ 35 mil; alíquota fixa de **15%** sobre o ganho líquido (Lei 14.754/2023), com campo para compensar prejuízos do ano
+- Botão **“Preencher com janela de arb”** usa preços ao vivo do ativo selecionado (compra no menor prêmio → venda no maior)
+- FAQ sobre IR nacional × exterior e links oficiais (RFB alíquotas, operações não sujeitas, GCAP, IN 1.888, Planalto)
+- Aviso explícito: ferramenta educativa — não é consultoria fiscal; MP 1.303/2025 (vigência encerrada) **não** entra no cálculo
+
 ## [1.4.1] — 2026-07-09
 
 ### Segurança e privacidade

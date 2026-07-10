@@ -227,6 +227,102 @@ table.show-net .col-net { display: table-cell; }
 .alert-log li .when { color: var(--muted); font-size: 11.5px; white-space: nowrap; }
 .alert-log li.empty { color: var(--muted); border: 0; }
 
+/* ── Calculadora tributária (IR / ganho de capital) ─────────────────────── */
+.tax-card .tax-disclaimer {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(250, 178, 25, 0.4);
+  background: rgba(250, 178, 25, 0.08);
+  color: var(--ink-2);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.tax-card .tax-disclaimer b { color: var(--warn); }
+.tax-card .tax-disclaimer a { color: var(--accent); }
+.tax-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .tax-grid { grid-template-columns: 1fr; }
+}
+.tax-form { display: grid; gap: 10px; }
+.tax-form label {
+  display: grid;
+  gap: 4px;
+  color: var(--ink-2);
+  font-size: 12.5px;
+}
+.tax-form label span.hint { color: var(--muted); font-size: 11.5px; }
+.tax-form input[type="number"] {
+  width: 100%;
+  max-width: 280px;
+  background: var(--page);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.tax-form .tax-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.tax-results {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 640px) {
+  .tax-results { grid-template-columns: 1fr; }
+}
+.tax-panel {
+  background: var(--page);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.tax-panel h3 { margin: 0 0 8px; font-size: 13.5px; color: var(--ink); }
+.tax-panel .tax-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+.tax-panel.nacional .tax-badge { color: var(--up); background: rgba(12, 163, 12, 0.12); }
+.tax-panel.exterior .tax-badge { color: var(--accent); background: rgba(57, 135, 229, 0.12); }
+.tax-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--grid);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.tax-row:last-child { border-bottom: none; }
+.tax-row b { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 650; }
+.tax-row.em { font-size: 14.5px; padding-top: 8px; }
+.tax-row .pos { color: var(--up); }
+.tax-row .neg { color: var(--down); }
+.tax-note { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.tax-note a { color: var(--accent); }
+.tax-base-legal {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--grid);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.tax-base-legal ul { margin: 6px 0 0; padding-left: 18px; }
+.tax-base-legal a { color: var(--accent); }
+
 /* ── Rodapé / modais ────────────────────────────────────────────────────── */
 .site-footer {
   max-width: 1280px;

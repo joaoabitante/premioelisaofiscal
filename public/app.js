@@ -634,6 +634,213 @@ function bindFees() {
   });
 }
 
+// ═════════ Calculadora de IR (ganho de capital RFB) ═════════
+// Base educativa — ver #calc-ir. Valores em BRL. Nada é gravado além do que
+// o store já faz para preferências do painel (esta calculadora não persiste inputs).
+const TAX_ISENCAO_MES = 35000;
+const TAX_FAIXAS_GC = [
+  { upto: 5_000_000, rate: 0.15 },
+  { upto: 10_000_000, rate: 0.175 },
+  { upto: 30_000_000, rate: 0.20 },
+  { upto: Infinity, rate: 0.225 },
+];
+const TAX_ALIQUOTA_EXTERIOR = 0.15;
+
+function irProgressivoGC(ganho) {
+  if (!(ganho > 0)) return 0;
+  let tax = 0, prev = 0, rest = ganho;
+  for (const f of TAX_FAIXAS_GC) {
+    const slice = Math.min(rest, f.upto - prev);
+    if (slice <= 0) break;
+    tax += slice * f.rate;
+    rest -= slice;
+    prev = f.upto;
+    if (rest <= 0) break;
+  }
+  return tax;
+}
+
+function taxNum(id) {
+  const v = Number($(id).value);
+  return Number.isFinite(v) && v >= 0 ? v : 0;
+}
+
+function fmtBRL(v) {
+  if (!Number.isFinite(v)) return '—';
+  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function fmtPctPlain(v) {
+  if (!Number.isFinite(v)) return '—';
+  return (v * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+}
+
+function calcTaxRegimes({ custo, alienacao, custosOp, outrasMes, prejuizos }) {
+  const ganho = alienacao - custo - custosOp;
+  const totalMes = alienacao + outrasMes;
+  const isentoNacional = totalMes <= TAX_ISENCAO_MES;
+  const irNacional = (ganho > 0 && !isentoNacional) ? irProgressivoGC(ganho) : 0;
+  const aliqEfetivaN = (ganho > 0 && irNacional > 0) ? irNacional / ganho : 0;
+  const baseExterior = Math.max(0, ganho - prejuizos);
+  const irExterior = ganho > 0 ? baseExterior * TAX_ALIQUOTA_EXTERIOR : 0;
+  return {
+    ganho,
+    nacional: {
+      totalMes, isento: isentoNacional, ir: irNacional, aliqEfetiva: aliqEfetivaN,
+      liquido: ganho - irNacional,
+    },
+    exterior: {
+      base: baseExterior, ir: irExterior, liquido: ganho - irExterior,
+    },
+  };
+}
+
+function setTaxText(id, text, cls) {
+  const el = $(id);
+  if (!el) return;
+  el.textContent = text;
+  el.className = cls || '';
+}
+
+function renderTax() {
+  if (!$('taxCusto')) return;
+  const r = calcTaxRegimes({
+    custo: taxNum('taxCusto'),
+    alienacao: taxNum('taxAlienacao'),
+    custosOp: taxNum('taxCustosOp'),
+    outrasMes: taxNum('taxOutrasMes'),
+    prejuizos: taxNum('taxPrejuizos'),
+  });
+  const gCls = r.ganho > 0 ? 'pos' : r.ganho < 0 ? 'neg' : '';
+  setTaxText('taxNGanho', fmtBRL(r.ganho), gCls);
+  setTaxText('taxNTotalMes', fmtBRL(r.nacional.totalMes));
+  setTaxText('taxNIsencao', r.nacional.isento
+    ? (r.ganho > 0 ? 'sim — ganho isento' : 'sim (limite de alienações)')
+    : 'não — total de alienações > R$ 35 mil');
+  setTaxText('taxNAliq', r.nacional.isento || r.ganho <= 0 ? '0%' : fmtPctPlain(r.nacional.aliqEfetiva));
+  setTaxText('taxNIr', fmtBRL(r.nacional.ir), r.nacional.ir > 0 ? 'neg' : '');
+  setTaxText('taxNLiq', fmtBRL(r.nacional.liquido), r.nacional.liquido >= 0 ? 'pos' : 'neg');
+  setTaxText('taxEGanho', fmtBRL(r.ganho), gCls);
+  setTaxText('taxEBase', fmtBRL(r.exterior.base), r.exterior.base > 0 ? 'pos' : '');
+  setTaxText('taxEIr', fmtBRL(r.exterior.ir), r.exterior.ir > 0 ? 'neg' : '');
+  setTaxText('taxELiq', fmtBRL(r.exterior.liquido), r.exterior.liquido >= 0 ? 'pos' : 'neg');
+
+  const cmp = $('taxCompare');
+  if (!cmp) return;
+  if (r.ganho <= 0) {
+    cmp.hidden = false;
+    cmp.textContent = r.ganho < 0
+      ? 'Prejuízo apurado: não há IR sobre ganho de capital nesta operação (guarde a documentação). No exterior, perdas do ano podem compensar outros ganhos de aplicações no exterior.'
+      : 'Informe custo e alienação para comparar os regimes.';
+  } else {
+    const diff = r.nacional.ir - r.exterior.ir;
+    cmp.hidden = false;
+    if (r.nacional.isento) {
+      cmp.innerHTML = 'Com isenção nacional, o IR no regime <b>nacional</b> fica <b>R$&nbsp;0</b> nesta simulação; no exterior seria <b>' +
+        fmtBRL(r.exterior.ir) + '</b> (15%). Diferença a favor do nacional: <b class="pos">' + fmtBRL(r.exterior.ir) + '</b>.';
+    } else if (Math.abs(diff) < 0.005) {
+      cmp.textContent = 'IR estimado igual nos dois regimes nesta simulação (' + fmtBRL(r.nacional.ir) + ').';
+    } else if (diff > 0) {
+      cmp.innerHTML = 'Nesta simulação o IR no regime <b>nacional</b> é <b>' + fmtBRL(diff) + '</b> maior que no exterior.';
+    } else {
+      cmp.innerHTML = 'Nesta simulação o IR no regime <b>exterior</b> é <b>' + fmtBRL(-diff) + '</b> maior que no nacional.';
+    }
+  }
+}
+
+function priceInBRL(exId) {
+  if (!S) return null;
+  const entry = S.prices[asset]?.[exId];
+  if (!entry || !(entry.price > 0)) return null;
+  const ex = S.exchanges.find((e) => e.id === exId);
+  if (!ex) return null;
+  if (ex.currency === 'BRL') return entry.price;
+  if (ex.currency === 'USD' || ex.currency === 'USDT') {
+    const brl = S.fx?.rates?.BRL;
+    return brl > 0 ? entry.price * brl : null;
+  }
+  const rate = S.fx?.rates?.[ex.currency];
+  const brl = S.fx?.rates?.BRL;
+  if (rate > 0 && brl > 0) return (entry.price / rate) * brl;
+  return null;
+}
+
+function fillTaxFromArb() {
+  const note = $('taxFillNote');
+  if (!note) return;
+  if (!S) {
+    note.hidden = false;
+    note.textContent = 'Aguarde a primeira coleta de preços.';
+    return;
+  }
+  const qty = taxNum('taxQty');
+  if (!(qty > 0)) {
+    note.hidden = false;
+    note.textContent = 'Informe a quantidade do ativo para preencher com a janela de arbitragem.';
+    return;
+  }
+  const locals = S.exchanges.filter((e) => e.kind === 'local')
+    .map((e) => ({ e, brl: priceInBRL(e.id), pct: S.premiums[asset]?.[e.id] }))
+    .filter((r) => r.brl > 0 && Number.isFinite(r.pct))
+    .sort((a, b) => a.pct - b.pct);
+  if (locals.length < 1) {
+    note.hidden = false;
+    note.textContent = 'Sem preço local em BRL para o ativo ' + asset + '.';
+    return;
+  }
+  let buyBRL, sellBRL, buyName, sellName;
+  if (locals.length >= 2) {
+    const lo = locals[0], hi = locals[locals.length - 1];
+    buyBRL = lo.brl; sellBRL = hi.brl;
+    buyName = lo.e.name; sellName = hi.e.name;
+  } else {
+    const ref = S.reference[asset];
+    const brl = S.fx?.rates?.BRL;
+    if (!(ref > 0 && brl > 0)) {
+      note.hidden = false;
+      note.textContent = 'Sem referência global ou câmbio USD/BRL.';
+      return;
+    }
+    buyBRL = ref * brl;
+    sellBRL = locals[0].brl;
+    buyName = 'mediana global';
+    sellName = locals[0].e.name;
+  }
+  const custo = buyBRL * qty;
+  const alienacao = sellBRL * qty;
+  const custosOp = custo * 0.001 + alienacao * 0.005;
+  $('taxCusto').value = custo.toFixed(2);
+  $('taxAlienacao').value = alienacao.toFixed(2);
+  $('taxCustosOp').value = custosOp.toFixed(2);
+  note.hidden = false;
+  note.textContent = 'Preenchido com ' + asset + ': compre ~' + buyName + ' (' + fmtBRL(buyBRL) +
+    '/un) → venda ~' + sellName + ' (' + fmtBRL(sellBRL) + '/un) × qtd ' +
+    qty.toLocaleString('pt-BR') + '. Taxas estimadas 0,1% + 0,5% — ajuste se precisar.';
+  renderTax();
+}
+
+function bindTaxCalc() {
+  if (!$('taxCalc')) return;
+  $('taxCalc').addEventListener('click', renderTax);
+  $('taxFillArb').addEventListener('click', fillTaxFromArb);
+  $('taxClear').addEventListener('click', () => {
+    for (const id of ['taxCusto', 'taxAlienacao', 'taxQty']) $(id).value = '';
+    $('taxCustosOp').value = '0';
+    $('taxOutrasMes').value = '0';
+    $('taxPrejuizos').value = '0';
+    $('taxFillNote').hidden = true;
+    for (const id of ['taxNGanho', 'taxNTotalMes', 'taxNIsencao', 'taxNAliq', 'taxNIr', 'taxNLiq', 'taxEGanho', 'taxEBase', 'taxEIr', 'taxELiq']) {
+      setTaxText(id, '—');
+    }
+    $('taxCompare').hidden = true;
+  });
+  for (const id of ['taxCusto', 'taxAlienacao', 'taxCustosOp', 'taxOutrasMes', 'taxPrejuizos']) {
+    $(id).addEventListener('input', () => {
+      if (taxNum('taxCusto') > 0 || taxNum('taxAlienacao') > 0) renderTax();
+    });
+  }
+}
+
 // ═════════ Doação ═════════
 function bindDonate() {
   $('donateList').innerHTML = DONATE.items
@@ -711,6 +918,7 @@ function init() {
   $('netToggle').checked = showNet;
   bindAlertControls();
   bindFees();
+  bindTaxCalc();
   bindDonate();
   renderAlertLog();
   connect();

@@ -18,7 +18,7 @@
 <meta name="referrer" content="no-referrer" />
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: 'self'; connect-src https://api.binance.com https://api.exchange.coinbase.com https://api.kraken.com https://api.bybit.com https://www.okx.com https://api.gemini.com https://api.mercadobitcoin.net https://api.foxbit.com.br https://brasilbitcoin.com.br https://api.bitpreco.com https://api.upbit.com https://api.bithumb.com https://public.bitbank.cc https://public.coindcx.com https://api.btcmarkets.net https://open.er-api.com https://cdn.jsdelivr.net; base-uri 'none'; form-action 'none'" />
 <title>Prêmio Cripto — Arbitragem de Criptomoedas entre Exchanges em Tempo Real</title>
-<meta name="description" content="Compare o preço de Bitcoin e criptomoedas entre Binance, Coinbase, Mercado Bitcoin, Foxbit, Upbit e mais. Prêmio (spread %) em tempo real para arbitragem, kimchi premium, alertas e histórico — grátis, open source e 100% no navegador." />
+<meta name="description" content="Compare o preço de Bitcoin e criptomoedas entre Binance, Coinbase, Mercado Bitcoin, Foxbit, Upbit e mais. Prêmio (spread %) em tempo real, calculadora de IR (nacional × exterior) e alertas — grátis, open source e 100% no navegador." />
 <link rel="canonical" href="https://premio.elisaofiscal.net/" />
 <meta name="robots" content="index, follow" />
 <meta name="theme-color" content="#0d0d0d" />
@@ -189,6 +189,60 @@ table.show-net .col-net { display:table-cell; }
 .alert-log li .when { color:var(--muted); font-size:11.5px; white-space:nowrap; }
 .alert-log li.empty { color:var(--muted); border:0; }
 
+/* ── Calculadora tributária (IR / ganho de capital) ── */
+.tax-card .tax-disclaimer {
+  margin:0 0 12px; padding:10px 12px; border-radius:8px;
+  border:1px solid rgba(250,178,25,.4); background:rgba(250,178,25,.08);
+  color:var(--ink-2); font-size:12.5px; line-height:1.55;
+}
+.tax-card .tax-disclaimer b { color:var(--warn); }
+.tax-card .tax-disclaimer a { color:var(--accent); }
+.tax-grid {
+  display:grid; grid-template-columns:1.1fr 1fr; gap:16px; align-items:start;
+}
+@media (max-width:900px){ .tax-grid { grid-template-columns:1fr; } }
+.tax-form { display:grid; gap:10px; }
+.tax-form label {
+  display:grid; gap:4px; color:var(--ink-2); font-size:12.5px;
+}
+.tax-form label span.hint { color:var(--muted); font-size:11.5px; }
+.tax-form input[type="number"] {
+  width:100%; max-width:280px; background:var(--page); color:var(--ink);
+  border:1px solid var(--border); border-radius:6px; padding:7px 10px; font-size:14px;
+  font-variant-numeric:tabular-nums;
+}
+.tax-form .tax-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:4px; }
+.tax-results {
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+}
+@media (max-width:640px){ .tax-results { grid-template-columns:1fr; } }
+.tax-panel {
+  background:var(--page); border:1px solid var(--border); border-radius:10px; padding:12px 14px;
+}
+.tax-panel h3 { margin:0 0 8px; font-size:13.5px; color:var(--ink); }
+.tax-panel .tax-badge {
+  display:inline-block; font-size:11px; font-weight:700; letter-spacing:.04em;
+  text-transform:uppercase; padding:2px 8px; border-radius:999px; margin-bottom:8px;
+}
+.tax-panel.nacional .tax-badge { color:var(--up); background:rgba(12,163,12,.12); }
+.tax-panel.exterior .tax-badge { color:var(--accent); background:rgba(57,135,229,.12); }
+.tax-row {
+  display:flex; justify-content:space-between; gap:10px; padding:5px 0;
+  border-bottom:1px solid var(--grid); font-size:13px; color:var(--ink-2);
+}
+.tax-row:last-child { border-bottom:none; }
+.tax-row b { color:var(--ink); font-variant-numeric:tabular-nums; font-weight:650; }
+.tax-row.em { font-size:14.5px; padding-top:8px; }
+.tax-row .pos { color:var(--up); } .tax-row .neg { color:var(--down); }
+.tax-note { margin:10px 0 0; color:var(--muted); font-size:12px; line-height:1.5; }
+.tax-note a { color:var(--accent); }
+.tax-base-legal {
+  margin-top:12px; padding-top:10px; border-top:1px solid var(--grid);
+  color:var(--muted); font-size:12px; line-height:1.55;
+}
+.tax-base-legal ul { margin:6px 0 0; padding-left:18px; }
+.tax-base-legal a { color:var(--accent); }
+
 .site-footer { max-width:1280px; margin:0 auto; padding:18px 20px 34px; color:var(--muted); font-size:13px; display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; border-top:1px solid var(--border); }
 .site-footer a { color:var(--ink-2); }
 .footer-links { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
@@ -349,6 +403,104 @@ a.d-value:hover { text-decoration:underline; }
     </section>
   </div>
 
+  <section class="card tax-card" id="calc-ir" aria-labelledby="taxTitle">
+    <div class="card-head">
+      <h2 id="taxTitle">Calculadora de IR — ganho de capital (nacional × exterior)</h2>
+    </div>
+    <p class="tax-disclaimer">
+      <b>Aviso:</b> ferramenta educativa e simplificada, com base nas regras públicas da
+      Receita Federal para pessoa física residente no Brasil em operações à vista com criptoativos.
+      <b>Não é consultoria fiscal nem substitui o GCAP / programa IRPF / contador.</b>
+      A MP 1.303/2025 (alíquota 17,5% e fim da isenção) teve a vigência encerrada e
+      <b>não</b> entra neste cálculo. Confira sempre a legislação vigente e a sua situação.
+    </p>
+    <div class="tax-grid">
+      <div class="tax-form" id="taxForm">
+        <label>
+          Custo de aquisição total (R$)
+          <span class="hint">Preço pago na compra + custos da aquisição (em reais)</span>
+          <input type="number" id="taxCusto" min="0" step="0.01" inputmode="decimal" placeholder="ex.: 50000" />
+        </label>
+        <label>
+          Valor da alienação total (R$)
+          <span class="hint">Total recebido na venda/troca (preço cheio, antes do IR)</span>
+          <input type="number" id="taxAlienacao" min="0" step="0.01" inputmode="decimal" placeholder="ex.: 55000" />
+        </label>
+        <label>
+          Custos da operação (R$)
+          <span class="hint">Taxas de trading, saque, rede etc. (deduzem o ganho)</span>
+          <input type="number" id="taxCustosOp" min="0" step="0.01" inputmode="decimal" value="0" />
+        </label>
+        <label>
+          Outras alienações de cripto no mesmo mês (R$) — só regime nacional
+          <span class="hint">Soma das demais vendas/permutas no mês (isenção se o total ≤ R$&nbsp;35.000)</span>
+          <input type="number" id="taxOutrasMes" min="0" step="0.01" inputmode="decimal" value="0" />
+        </label>
+        <label>
+          Prejuízos compensáveis no ano (R$) — só regime exterior
+          <span class="hint">Perdas com aplicações financeiras no exterior no mesmo ano-calendário (Lei 14.754/2023)</span>
+          <input type="number" id="taxPrejuizos" min="0" step="0.01" inputmode="decimal" value="0" />
+        </label>
+        <label>
+          Quantidade do ativo (opcional, p/ preencher com preços ao vivo)
+          <input type="number" id="taxQty" min="0" step="any" inputmode="decimal" placeholder="ex.: 0,01 BTC" />
+        </label>
+        <div class="tax-actions">
+          <button class="btn btn-primary" id="taxCalc" type="button">Calcular IR</button>
+          <button class="btn" id="taxFillArb" type="button" title="Usa a janela de arbitragem do ativo selecionado">Preencher com janela de arb</button>
+          <button class="btn" id="taxClear" type="button">Limpar</button>
+        </div>
+        <p class="tax-note" id="taxFillNote" hidden></p>
+      </div>
+      <div>
+        <div class="tax-results" id="taxResults" aria-live="polite">
+          <div class="tax-panel nacional">
+            <span class="tax-badge">Exchange no Brasil</span>
+            <h3>Ganho de capital (GCAP)</h3>
+            <div class="tax-row"><span>Ganho / prejuízo</span><b id="taxNGanho">—</b></div>
+            <div class="tax-row"><span>Total alienações no mês</span><b id="taxNTotalMes">—</b></div>
+            <div class="tax-row"><span>Isenção R$ 35 mil</span><b id="taxNIsencao">—</b></div>
+            <div class="tax-row"><span>Alíquota efetiva</span><b id="taxNAliq">—</b></div>
+            <div class="tax-row em"><span>IR devido (DARF 4600)</span><b id="taxNIr">—</b></div>
+            <div class="tax-row em"><span>Resultado líquido</span><b id="taxNLiq">—</b></div>
+            <p class="tax-note">Regime se a alienação ocorre em exchange com domicílio fiscal no Brasil (ex.: Mercado Bitcoin, Foxbit). Se tributável: GCAP + DARF até o último dia útil do mês seguinte.</p>
+          </div>
+          <div class="tax-panel exterior">
+            <span class="tax-badge">Exchange no exterior</span>
+            <h3>Aplicação financeira no exterior</h3>
+            <div class="tax-row"><span>Ganho / prejuízo</span><b id="taxEGanho">—</b></div>
+            <div class="tax-row"><span>Após compensar perdas</span><b id="taxEBase">—</b></div>
+            <div class="tax-row"><span>Isenção R$ 35 mil</span><b id="taxEIsencao">não se aplica</b></div>
+            <div class="tax-row"><span>Alíquota</span><b id="taxEAliq">15% fixa</b></div>
+            <div class="tax-row em"><span>IR devido (na DAA)</span><b id="taxEIr">—</b></div>
+            <div class="tax-row em"><span>Resultado líquido</span><b id="taxELiq">—</b></div>
+            <p class="tax-note">Regime se a custódia/alienação é no exterior (Binance, Bybit, Upbit, etc.). Apuração anual na DAA (Lei 14.754/2023). “Local” no painel ≠ “nacional” para o IR.</p>
+          </div>
+        </div>
+        <p class="tax-note" id="taxCompare" hidden></p>
+      </div>
+    </div>
+    <div class="tax-base-legal">
+      <b style="color:var(--ink-2)">Base legal e orientação (referências públicas):</b>
+      <ul>
+        <li>Isenção de operações de pequeno valor (alienações ≤ R$&nbsp;35.000 no mês, conjunto da mesma natureza):
+          <a href="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/pagamento/ganhos-de-capital/operacoes-nao-sujeitas" target="_blank" rel="noopener noreferrer">RFB — operações não sujeitas</a>
+          e art. 22 da Lei 9.250/1995 (orientação RFB para cripto: total mensal de alienações).</li>
+        <li>Alíquotas progressivas de ganho de capital (15% / 17,5% / 20% / 22,5%):
+          <a href="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/pagamento/ganhos-de-capital/aliquotas" target="_blank" rel="noopener noreferrer">RFB — alíquotas</a>
+          e art. 21 da Lei 8.981/1995.</li>
+        <li>Cripto em exchange no exterior como aplicação financeira; alíquota 15% e compensação de perdas:
+          <a href="https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14754.htm" target="_blank" rel="noopener noreferrer">Lei 14.754/2023</a>.</li>
+        <li>Obrigação de informar operações (IN RFB 1.888/2019):
+          <a href="https://www.gov.br/pt-br/servicos/declarar-operacoes-com-criptoativos" target="_blank" rel="noopener noreferrer">Declarar operações com criptoativos</a>
+          — PF quando a exchange é no exterior ou a operação não é em exchange (limite de reporte: R$&nbsp;30.000/mês).</li>
+        <li>Programa
+          <a href="https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/download/pgd/gcap" target="_blank" rel="noopener noreferrer">GCAP</a>
+          para apurar e gerar DARF (código 4600) no regime nacional.</li>
+      </ul>
+    </div>
+  </section>
+
   <section class="card about-card">
     <h2>Perguntas frequentes</h2>
     <details>
@@ -377,6 +529,17 @@ a.d-value:hover { text-decoration:underline; }
       <a href="https://github.com/joaoabitante/premioelisaofiscal/blob/main/PRIVACY.md" target="_blank" rel="noopener noreferrer">PRIVACY.md</a>.
       O painel é somente monitoramento — não executa ordens e não é recomendação de investimento.</p>
     </details>
+    <details>
+      <summary>Como funciona o IR no ganho de capital entre exchange nacional e estrangeira?</summary>
+      <p>Em exchange <b>nacional</b>, o ganho de capital em alienações de cripto no mês cujo
+      total de vendas (todas as espécies) seja até R$&nbsp;35.000 costuma ser isento; acima disso,
+      tributa-se o ganho pelas alíquotas progressivas de 15% a 22,5% (GCAP + DARF 4600).
+      Em exchange <b>no exterior</b>, a Lei 14.754/2023 trata o ativo como aplicação financeira
+      no exterior: <b>sem</b> isenção de R$&nbsp;35 mil, alíquota fixa de 15% sobre o ganho líquido
+      anual (com compensação de perdas no mesmo ano), pago na declaração de ajuste.
+      Use a <a href="#calc-ir">calculadora de IR</a> deste painel para simular os dois regimes
+      lado a lado. Isso não substitui orientação profissional.</p>
+    </details>
   </section>
 </main>
 
@@ -386,7 +549,7 @@ a.d-value:hover { text-decoration:underline; }
     Não é recomendação de investimento. Câmbio: <span id="fxSource">—</span>.
   </div>
   <div class="footer-links">
-    <button class="btn-link" id="btnChangelog" type="button">📋 v1.4.1 · atualizações</button>
+    <button class="btn-link" id="btnChangelog" type="button">📋 v1.5.0 · atualizações</button>
     <a href="#" id="linkProjects" target="_blank" rel="noopener noreferrer">Conheça meus outros projetos →</a>
     <button class="btn btn-heart" id="btnDonateFooter" type="button">♥ Fazer uma doação</button>
   </div>
@@ -1157,6 +1320,213 @@ $('feesReset').addEventListener('click', () => {
   if (ready) renderTable();
 });
 
+// ═════════ Calculadora de IR (ganho de capital RFB) ═════════
+// Base educativa — ver #calc-ir e CHANGELOG. Valores em BRL.
+const TAX_ISENCAO_MES = 35000; // Lei 9.250/95 art. 22 + orientação RFB p/ cripto
+const TAX_FAIXAS_GC = [ // art. 21 Lei 8.981/1995 — progressivo por parcela
+  { upto: 5_000_000, rate: 0.15 },
+  { upto: 10_000_000, rate: 0.175 },
+  { upto: 30_000_000, rate: 0.20 },
+  { upto: Infinity, rate: 0.225 },
+];
+const TAX_ALIQUOTA_EXTERIOR = 0.15; // Lei 14.754/2023
+
+function irProgressivoGC(ganho) {
+  if (!(ganho > 0)) return 0;
+  let tax = 0, prev = 0, rest = ganho;
+  for (const f of TAX_FAIXAS_GC) {
+    const slice = Math.min(rest, f.upto - prev);
+    if (slice <= 0) break;
+    tax += slice * f.rate;
+    rest -= slice;
+    prev = f.upto;
+    if (rest <= 0) break;
+  }
+  return tax;
+}
+
+function numInput(id) {
+  const v = Number($(id).value);
+  return Number.isFinite(v) && v >= 0 ? v : 0;
+}
+
+function fmtBRL(v) {
+  if (!Number.isFinite(v)) return '—';
+  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function fmtPctPlain(v) {
+  if (!Number.isFinite(v)) return '—';
+  return (v * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+}
+
+function calcTaxRegimes({ custo, alienacao, custosOp, outrasMes, prejuizos }) {
+  const ganho = alienacao - custo - custosOp;
+  const totalMes = alienacao + outrasMes;
+  const isentoNacional = totalMes <= TAX_ISENCAO_MES;
+  const irNacional = (ganho > 0 && !isentoNacional) ? irProgressivoGC(ganho) : 0;
+  const aliqEfetivaN = (ganho > 0 && irNacional > 0) ? irNacional / ganho : 0;
+  const baseExterior = Math.max(0, ganho - prejuizos);
+  const irExterior = ganho > 0 ? baseExterior * TAX_ALIQUOTA_EXTERIOR : 0;
+  return {
+    ganho,
+    nacional: {
+      totalMes, isento: isentoNacional, ir: irNacional, aliqEfetiva: aliqEfetivaN,
+      liquido: ganho - irNacional,
+    },
+    exterior: {
+      base: baseExterior, ir: irExterior, liquido: ganho - irExterior,
+    },
+  };
+}
+
+function setTaxText(id, text, cls) {
+  const el = $(id);
+  el.textContent = text;
+  el.className = cls || '';
+}
+
+function renderTax() {
+  const r = calcTaxRegimes({
+    custo: numInput('taxCusto'),
+    alienacao: numInput('taxAlienacao'),
+    custosOp: numInput('taxCustosOp'),
+    outrasMes: numInput('taxOutrasMes'),
+    prejuizos: numInput('taxPrejuizos'),
+  });
+  const gCls = r.ganho > 0 ? 'pos' : r.ganho < 0 ? 'neg' : '';
+  setTaxText('taxNGanho', fmtBRL(r.ganho), gCls);
+  setTaxText('taxNTotalMes', fmtBRL(r.nacional.totalMes));
+  setTaxText('taxNIsencao', r.nacional.isento
+    ? (r.ganho > 0 ? 'sim — ganho isento' : 'sim (limite de alienações)')
+    : 'não — total de alienações > R$ 35 mil');
+  setTaxText('taxNAliq', r.nacional.isento || r.ganho <= 0 ? '0%' : fmtPctPlain(r.nacional.aliqEfetiva));
+  setTaxText('taxNIr', fmtBRL(r.nacional.ir), r.nacional.ir > 0 ? 'neg' : '');
+  setTaxText('taxNLiq', fmtBRL(r.nacional.liquido), r.nacional.liquido >= 0 ? 'pos' : 'neg');
+
+  setTaxText('taxEGanho', fmtBRL(r.ganho), gCls);
+  setTaxText('taxEBase', fmtBRL(r.exterior.base), r.exterior.base > 0 ? 'pos' : '');
+  setTaxText('taxEIr', fmtBRL(r.exterior.ir), r.exterior.ir > 0 ? 'neg' : '');
+  setTaxText('taxELiq', fmtBRL(r.exterior.liquido), r.exterior.liquido >= 0 ? 'pos' : 'neg');
+
+  const cmp = $('taxCompare');
+  if (r.ganho <= 0) {
+    cmp.hidden = false;
+    cmp.textContent = r.ganho < 0
+      ? 'Prejuízo apurado: não há IR sobre ganho de capital nesta operação (guarde a documentação). Regime nacional e exterior tratam perdas de forma diferente — no exterior, perdas do ano podem compensar outros ganhos de aplicações no exterior.'
+      : 'Informe custo e alienação para comparar os regimes.';
+  } else {
+    const diff = r.nacional.ir - r.exterior.ir;
+    cmp.hidden = false;
+    if (r.nacional.isento) {
+      cmp.innerHTML = 'Com isenção nacional, o IR no regime <b>nacional</b> fica <b>R$&nbsp;0</b> nesta simulação; no exterior seria <b>' +
+        fmtBRL(r.exterior.ir) + '</b> (15%). Diferença a favor do nacional: <b class="pos">' + fmtBRL(r.exterior.ir) + '</b>.';
+    } else if (Math.abs(diff) < 0.005) {
+      cmp.textContent = 'IR estimado igual nos dois regimes nesta simulação (' + fmtBRL(r.nacional.ir) + ').';
+    } else if (diff > 0) {
+      cmp.innerHTML = 'Nesta simulação o IR no regime <b>nacional</b> é <b>' + fmtBRL(diff) + '</b> maior que no exterior.';
+    } else {
+      cmp.innerHTML = 'Nesta simulação o IR no regime <b>exterior</b> é <b>' + fmtBRL(-diff) + '</b> maior que no nacional.';
+    }
+  }
+}
+
+/** Preço da exchange em BRL (converte via FX se necessário). */
+function priceInBRL(exId) {
+  const entry = S.prices[asset]?.[exId];
+  if (!entry || !(entry.price > 0)) return null;
+  const ex = EXCHANGES.find((e) => e.id === exId);
+  if (!ex) return null;
+  if (ex.currency === 'BRL') return entry.price;
+  if (ex.currency === 'USD' || ex.currency === 'USDT') {
+    const brl = S.fx.rates?.BRL;
+    return brl > 0 ? entry.price * brl : null;
+  }
+  const rate = S.fx.rates?.[ex.currency];
+  const brl = S.fx.rates?.BRL;
+  // rates are typically USD→moeda; preço local / rate = USD, × BRL
+  if (rate > 0 && brl > 0) return (entry.price / rate) * brl;
+  return null;
+}
+
+function fillTaxFromArb() {
+  const note = $('taxFillNote');
+  if (!ready) {
+    note.hidden = false;
+    note.textContent = 'Aguarde a primeira coleta de preços.';
+    return;
+  }
+  const qty = numInput('taxQty');
+  if (!(qty > 0)) {
+    note.hidden = false;
+    note.textContent = 'Informe a quantidade do ativo para preencher com a janela de arbitragem.';
+    return;
+  }
+  const locals = EXCHANGES.filter((e) => e.kind === 'local')
+    .map((e) => ({ e, brl: priceInBRL(e.id), pct: S.premiums[asset]?.[e.id] }))
+    .filter((r) => r.brl > 0 && Number.isFinite(r.pct))
+    .sort((a, b) => a.pct - b.pct);
+  if (locals.length < 1) {
+    note.hidden = false;
+    note.textContent = 'Sem preço local em BRL para o ativo ' + asset + '.';
+    return;
+  }
+  // Compra no menor prêmio, venda no maior (janela de arb entre locais)
+  // Se só 1 local, compra = referência global convertida, venda = local
+  let buyBRL, sellBRL, buyName, sellName;
+  if (locals.length >= 2) {
+    const lo = locals[0], hi = locals[locals.length - 1];
+    buyBRL = lo.brl; sellBRL = hi.brl;
+    buyName = lo.e.name; sellName = hi.e.name;
+  } else {
+    const ref = S.reference[asset];
+    const brl = S.fx.rates?.BRL;
+    if (!(ref > 0 && brl > 0)) {
+      note.hidden = false;
+      note.textContent = 'Sem referência global ou câmbio USD/BRL.';
+      return;
+    }
+    buyBRL = ref * brl;
+    sellBRL = locals[0].brl;
+    buyName = 'mediana global';
+    sellName = locals[0].e.name;
+  }
+  const feeBuy = 0.1; // % aprox. — usuário ajusta em “Custos”
+  const feeSell = 0.5;
+  const custo = buyBRL * qty;
+  const alienacao = sellBRL * qty;
+  const custosOp = custo * (feeBuy / 100) + alienacao * (feeSell / 100);
+  $('taxCusto').value = custo.toFixed(2);
+  $('taxAlienacao').value = alienacao.toFixed(2);
+  $('taxCustosOp').value = custosOp.toFixed(2);
+  note.hidden = false;
+  note.textContent = 'Preenchido com ' + asset + ': compre ~' + buyName + ' (' + fmtBRL(buyBRL) +
+    '/un) → venda ~' + sellName + ' (' + fmtBRL(sellBRL) + '/un) × qtd ' +
+    qty.toLocaleString('pt-BR') + '. Taxas estimadas 0,1% + 0,5% — ajuste se precisar. ' +
+    'O local da alienação (nacional vs exterior) define o regime: a calculadora mostra os dois.';
+  renderTax();
+}
+
+$('taxCalc').addEventListener('click', renderTax);
+$('taxFillArb').addEventListener('click', fillTaxFromArb);
+$('taxClear').addEventListener('click', () => {
+  for (const id of ['taxCusto', 'taxAlienacao', 'taxQty']) $(id).value = '';
+  $('taxCustosOp').value = '0';
+  $('taxOutrasMes').value = '0';
+  $('taxPrejuizos').value = '0';
+  $('taxFillNote').hidden = true;
+  for (const id of ['taxNGanho', 'taxNTotalMes', 'taxNIsencao', 'taxNAliq', 'taxNIr', 'taxNLiq', 'taxEGanho', 'taxEBase', 'taxEIr', 'taxELiq']) {
+    setTaxText(id, '—');
+  }
+  $('taxCompare').hidden = true;
+});
+// Recalcula ao digitar (sem gravar nada)
+for (const id of ['taxCusto', 'taxAlienacao', 'taxCustosOp', 'taxOutrasMes', 'taxPrejuizos']) {
+  $(id).addEventListener('input', () => {
+    if (numInput('taxCusto') > 0 || numInput('taxAlienacao') > 0) renderTax();
+  });
+}
+
 // ═════════ Doação ═════════
 $('donateList').innerHTML = DONATE.items.map((i) => {
   const v = i.value.startsWith('https://')
@@ -1183,6 +1553,11 @@ $('donateList').addEventListener('click', async (ev) => {
 
 // ═════════ Log de atualizações ═════════
 const CHANGELOG = [
+  { v: '1.5.0', date: '09/07/2026', items: [
+    'Calculadora tributária de ganho de capital: compara regime de exchange nacional (isenção R$ 35 mil + alíquotas 15–22,5%) com exterior (15% fixo, Lei 14.754/2023)',
+    'Preenchimento opcional pela janela de arbitragem do ativo selecionado (preços ao vivo)',
+    'FAQ e links oficiais da Receita Federal / Planalto na base legal da calculadora',
+  ] },
   { v: '1.4.1', date: '09/07/2026', items: [
     'Auditoria de privacidade: headers de segurança (CSP, anti-iframe, nosniff, HSTS)',
     'Opt-out das APIs de perfilamento do navegador (Topics/FLoC) e cancelamento da telemetria NEL da CDN',

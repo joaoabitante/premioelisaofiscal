@@ -107,6 +107,103 @@
         <ol class="alert-log" id="alertLog"><li class="empty">Nenhum alerta ainda.</li></ol>
       </section>
     </div>
+
+    <section class="card tax-card" id="calc-ir" aria-labelledby="taxTitle">
+      <div class="card-head">
+        <h2 id="taxTitle">Calculadora de IR — ganho de capital (nacional × exterior)</h2>
+      </div>
+      <p class="tax-disclaimer">
+        <b>Aviso:</b> ferramenta educativa e simplificada, com base nas regras públicas da
+        Receita Federal para pessoa física residente no Brasil em operações à vista com criptoativos.
+        <b>Não é consultoria fiscal nem substitui o GCAP / programa IRPF / contador.</b>
+        A MP 1.303/2025 (alíquota 17,5% e fim da isenção) teve a vigência encerrada e
+        <b>não</b> entra neste cálculo. Confira sempre a legislação vigente e a sua situação.
+      </p>
+      <div class="tax-grid">
+        <div class="tax-form" id="taxForm">
+          <label>
+            Custo de aquisição total (R$)
+            <span class="hint">Preço pago na compra + custos da aquisição (em reais)</span>
+            <input type="number" id="taxCusto" min="0" step="0.01" inputmode="decimal" placeholder="ex.: 50000" />
+          </label>
+          <label>
+            Valor da alienação total (R$)
+            <span class="hint">Total recebido na venda/troca (preço cheio, antes do IR)</span>
+            <input type="number" id="taxAlienacao" min="0" step="0.01" inputmode="decimal" placeholder="ex.: 55000" />
+          </label>
+          <label>
+            Custos da operação (R$)
+            <span class="hint">Taxas de trading, saque, rede etc. (deduzem o ganho)</span>
+            <input type="number" id="taxCustosOp" min="0" step="0.01" inputmode="decimal" value="0" />
+          </label>
+          <label>
+            Outras alienações de cripto no mesmo mês (R$) — só regime nacional
+            <span class="hint">Soma das demais vendas/permutas no mês (isenção se o total ≤ R$&nbsp;35.000)</span>
+            <input type="number" id="taxOutrasMes" min="0" step="0.01" inputmode="decimal" value="0" />
+          </label>
+          <label>
+            Prejuízos compensáveis no ano (R$) — só regime exterior
+            <span class="hint">Perdas com aplicações financeiras no exterior no mesmo ano-calendário (Lei 14.754/2023)</span>
+            <input type="number" id="taxPrejuizos" min="0" step="0.01" inputmode="decimal" value="0" />
+          </label>
+          <label>
+            Quantidade do ativo (opcional, p/ preencher com preços ao vivo)
+            <input type="number" id="taxQty" min="0" step="any" inputmode="decimal" placeholder="ex.: 0,01 BTC" />
+          </label>
+          <div class="tax-actions">
+            <button class="btn btn-primary" id="taxCalc" type="button">Calcular IR</button>
+            <button class="btn" id="taxFillArb" type="button" title="Usa a janela de arbitragem do ativo selecionado">Preencher com janela de arb</button>
+            <button class="btn" id="taxClear" type="button">Limpar</button>
+          </div>
+          <p class="tax-note" id="taxFillNote" hidden></p>
+        </div>
+        <div>
+          <div class="tax-results" id="taxResults" aria-live="polite">
+            <div class="tax-panel nacional">
+              <span class="tax-badge">Exchange no Brasil</span>
+              <h3>Ganho de capital (GCAP)</h3>
+              <div class="tax-row"><span>Ganho / prejuízo</span><b id="taxNGanho">—</b></div>
+              <div class="tax-row"><span>Total alienações no mês</span><b id="taxNTotalMes">—</b></div>
+              <div class="tax-row"><span>Isenção R$ 35 mil</span><b id="taxNIsencao">—</b></div>
+              <div class="tax-row"><span>Alíquota efetiva</span><b id="taxNAliq">—</b></div>
+              <div class="tax-row em"><span>IR devido (DARF 4600)</span><b id="taxNIr">—</b></div>
+              <div class="tax-row em"><span>Resultado líquido</span><b id="taxNLiq">—</b></div>
+              <p class="tax-note">Regime se a alienação ocorre em exchange com domicílio fiscal no Brasil (ex.: Mercado Bitcoin, Foxbit). Se tributável: GCAP + DARF até o último dia útil do mês seguinte.</p>
+            </div>
+            <div class="tax-panel exterior">
+              <span class="tax-badge">Exchange no exterior</span>
+              <h3>Aplicação financeira no exterior</h3>
+              <div class="tax-row"><span>Ganho / prejuízo</span><b id="taxEGanho">—</b></div>
+              <div class="tax-row"><span>Após compensar perdas</span><b id="taxEBase">—</b></div>
+              <div class="tax-row"><span>Isenção R$ 35 mil</span><b id="taxEIsencao">não se aplica</b></div>
+              <div class="tax-row"><span>Alíquota</span><b id="taxEAliq">15% fixa</b></div>
+              <div class="tax-row em"><span>IR devido (na DAA)</span><b id="taxEIr">—</b></div>
+              <div class="tax-row em"><span>Resultado líquido</span><b id="taxELiq">—</b></div>
+              <p class="tax-note">Regime se a custódia/alienação é no exterior (Binance, Bybit, Upbit, etc.). Apuração anual na DAA (Lei 14.754/2023). “Local” no painel ≠ “nacional” para o IR.</p>
+            </div>
+          </div>
+          <p class="tax-note" id="taxCompare" hidden></p>
+        </div>
+      </div>
+      <div class="tax-base-legal">
+        <b style="color:var(--ink-2)">Base legal e orientação (referências públicas):</b>
+        <ul>
+          <li>Isenção de operações de pequeno valor (alienações ≤ R$&nbsp;35.000 no mês):
+            <a href="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/pagamento/ganhos-de-capital/operacoes-nao-sujeitas" target="_blank" rel="noopener noreferrer">RFB — operações não sujeitas</a>
+            e art. 22 da Lei 9.250/1995.</li>
+          <li>Alíquotas progressivas (15% / 17,5% / 20% / 22,5%):
+            <a href="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/pagamento/ganhos-de-capital/aliquotas" target="_blank" rel="noopener noreferrer">RFB — alíquotas</a>
+            e art. 21 da Lei 8.981/1995.</li>
+          <li>Cripto no exterior — alíquota 15% e compensação de perdas:
+            <a href="https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14754.htm" target="_blank" rel="noopener noreferrer">Lei 14.754/2023</a>.</li>
+          <li>Obrigação de informar operações (IN RFB 1.888/2019):
+            <a href="https://www.gov.br/pt-br/servicos/declarar-operacoes-com-criptoativos" target="_blank" rel="noopener noreferrer">Declarar operações com criptoativos</a>.</li>
+          <li>Programa
+            <a href="https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/download/pgd/gcap" target="_blank" rel="noopener noreferrer">GCAP</a>
+            (DARF código 4600) no regime nacional.</li>
+        </ul>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -115,7 +212,7 @@
       Dados: APIs públicas das exchanges · câmbio: <span id="fxSource">—</span>.
     </div>
     <div class="footer-links">
-      <a href="https://github.com/joaoabitante/premioelisaofiscal/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">📋 v1.4.1 · atualizações</a>
+      <a href="https://github.com/joaoabitante/premioelisaofiscal/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">📋 v1.5.0 · atualizações</a>
       <a href="#" id="linkProjects" target="_blank" rel="noopener noreferrer">Conheça meus outros projetos →</a>
       <button class="btn btn-heart" id="btnDonateFooter" type="button">♥ Fazer uma doação</button>
     </div>
