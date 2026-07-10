@@ -1,0 +1,23 @@
+{
+  "name": "premio-cripto",
+  "version": "1.0.0",
+  "description": "Monitor open-source de prêmio (spread %) de criptomoedas entre exchanges globais e locais — arbitragem em tempo real",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "crypto",
+    "arbitragem",
+    "kimchi-premium",
+    "bitcoin",
+    "mercado-bitcoin",
+    "binance",
+    "dashboard"
+  ],
+  "license": "MIT"
+}

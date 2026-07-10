@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prêmio Cripto — monitor de arbitragem entre exchanges</title>
+  <meta name="description" content="Monitor open-source do prêmio (spread %) de criptomoedas entre exchanges globais e locais, em tempo real." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E⚡%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-bolt">⚡</span>
+      <div>
+        <strong>Prêmio Cripto</strong>
+        <small>monitor de arbitragem · dados reais ao vivo</small>
+      </div>
+    </div>
+    <nav class="asset-tabs" id="assetTabs" aria-label="Selecionar ativo"></nav>
+    <div class="top-actions">
+      <span class="conn" id="conn" title="Estado da conexão"><span class="conn-dot"></span><span class="conn-label">conectando…</span></span>
+      <button class="btn" id="btnFees" type="button">Taxas</button>
+      <button class="btn btn-heart" id="btnDonate" type="button">♥ Apoiar</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="tiles" id="tiles" aria-label="Resumo"></section>
+
+    <section class="card table-card">
+      <div class="card-head">
+        <h2>Preços e prêmios — <span id="tableAsset">BTC</span></h2>
+        <label class="net-toggle">
+          <input type="checkbox" id="netToggle" />
+          <span>Prêmio líquido (descontar taxas)</span>
+        </label>
+      </div>
+      <div class="table-wrap">
+        <table id="priceTable">
+          <thead>
+            <tr>
+              <th>Exchange</th>
+              <th>Mercado</th>
+              <th class="num">Preço local</th>
+              <th class="num">Preço em USD</th>
+              <th class="num th-premium">Prêmio</th>
+              <th class="num col-net">Líquido</th>
+              <th class="num">Atualizado</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyLocal">
+            <tr class="group-row"><td colspan="8">Exchanges locais / regionais — ordenadas pelo maior prêmio</td></tr>
+          </tbody>
+          <tbody id="tbodyGlobal">
+            <tr class="group-row"><td colspan="8">Exchanges globais (referência = mediana em USD) — coluna “Prêmio” mostra o desvio vs. mediana</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="foot-note" id="netNote" hidden>Líquido = prêmio − taxa de trading local − taxa de trading da global de referência − taxa de saque. Edite as taxas no botão “Taxas”.</p>
+    </section>
+
+    <div class="two-col">
+      <section class="card chart-card">
+        <div class="card-head">
+          <h2>Histórico do prêmio — <span id="chartAsset">BTC</span></h2>
+          <div class="range-tabs" role="tablist" aria-label="Período">
+            <button class="range-btn active" data-range="24h" type="button">24 h</button>
+            <button class="range-btn" data-range="7d" type="button">7 dias</button>
+          </div>
+        </div>
+        <div class="legend" id="legend"></div>
+        <div class="chart-box" id="chartBox">
+          <svg id="chart" role="img" aria-label="Gráfico do prêmio ao longo do tempo"></svg>
+          <div class="chart-tip" id="chartTip" hidden></div>
+        </div>
+        <p class="foot-note">O histórico é coletado enquanto o servidor está no ar (resolução: 1 min em 24 h, 10 min em 7 dias) e persiste em <code>data/history.json</code>.</p>
+      </section>
+
+      <section class="card alerts-card">
+        <div class="card-head"><h2>Alertas</h2></div>
+        <div class="alert-controls">
+          <label>Avisar quando |prêmio| ≥
+            <span class="threshold-wrap"><input type="number" id="alertThreshold" min="0.1" step="0.1" value="2" /> %</span>
+          </label>
+          <label class="check"><input type="checkbox" id="alertNotify" /> Notificação do navegador</label>
+          <label class="check"><input type="checkbox" id="alertSound" checked /> Som</label>
+        </div>
+        <h3 class="alert-log-title">Últimos alertas</h3>
+        <ol class="alert-log" id="alertLog"><li class="empty">Nenhum alerta ainda.</li></ol>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div>
+      <strong>Prêmio Cripto</strong> é open source (MIT) — somente monitoramento, não executa ordens e não é recomendação de investimento.
+      Dados: APIs públicas das exchanges · câmbio: <span id="fxSource">—</span>.
+    </div>
+    <div class="footer-links">
+      <a href="#" id="linkProjects" target="_blank" rel="noopener">Conheça meus outros projetos →</a>
+      <button class="btn btn-heart" id="btnDonateFooter" type="button">♥ Fazer uma doação</button>
+    </div>
+  </footer>
+
+  <dialog id="feesModal" class="modal">
+    <h2>Taxas por exchange</h2>
+    <p class="modal-hint">Valores padrão aproximados (taker). Ajuste para o seu nível de conta — usados no cálculo do prêmio líquido e salvos apenas neste navegador.</p>
+    <div class="table-wrap">
+      <table class="fees-table">
+        <thead><tr><th>Exchange</th><th class="num">Trading %</th><th class="num">Saque %</th></tr></thead>
+        <tbody id="feesBody"></tbody>
+      </table>
+    </div>
+    <label class="ref-fee">Taxa de trading da global de referência (%): <input type="number" id="refFee" min="0" step="0.05" /></label>
+    <div class="modal-actions">
+      <button class="btn" id="feesReset" type="button">Restaurar padrão</button>
+      <button class="btn btn-primary" id="feesClose" type="button">Fechar</button>
+    </div>
+  </dialog>
+
+  <dialog id="donateModal" class="modal">
+    <h2>♥ Apoie este projeto</h2>
+    <p class="modal-hint">O Prêmio Cripto é gratuito e open source. Se ele te ajudou a pegar um bom spread, considere uma doação:</p>
+    <ul class="donate-list" id="donateList"></ul>
+    <p class="modal-hint"><a href="#" id="linkProjectsModal" target="_blank" rel="noopener">Conheça todos os meus projetos →</a></p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="donateClose" type="button">Fechar</button>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
