@@ -3,13 +3,11 @@
 
 'use strict';
 
-// ═════════ Configuração de doação — edite com seus dados ═════════
+// ═════════ Doação ═════════
 const DONATE = {
-  projectsUrl: 'https://github.com/SEU-USUARIO', // link "conheça meus projetos"
+  projectsUrl: 'https://github.com/joaoabitante', // "conheça meus projetos"
   items: [
-    { label: 'PIX', value: 'SUA-CHAVE-PIX-AQUI' },
-    { label: 'BTC', value: 'bc1q-SEU-ENDERECO-BITCOIN' },
-    { label: 'ETH', value: '0x-SEU-ENDERECO-ETHEREUM' },
+    { label: 'LiveTip', value: 'https://livetip.gg/libertcontador' },
   ],
 };
 
@@ -629,8 +627,13 @@ function bindFees() {
 // ═════════ Doação ═════════
 function bindDonate() {
   $('donateList').innerHTML = DONATE.items
-    .map((i) => `<li><span class="d-label">${i.label}</span><span class="d-value">${i.value}</span>
-      <button class="copy-btn" data-copy="${i.value}" type="button">copiar</button></li>`)
+    .map((i) => {
+      const v = i.value.startsWith('https://')
+        ? `<a class="d-value" href="${i.value}" target="_blank" rel="noopener noreferrer">${i.value.replace('https://', '')}</a>`
+        : `<span class="d-value">${i.value}</span>`;
+      return `<li><span class="d-label">${i.label}</span>${v}
+        <button class="copy-btn" data-copy="${i.value}" type="button">copiar</button></li>`;
+    })
     .join('');
   $('linkProjects').href = DONATE.projectsUrl;
   $('linkProjectsModal').href = DONATE.projectsUrl;

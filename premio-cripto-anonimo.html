@@ -153,6 +153,8 @@ table.show-net .col-net { display:table-cell; }
 .donate-list li { display:flex; align-items:center; gap:10px; background:var(--page); border:1px solid var(--border); border-radius:8px; padding:9px 12px; }
 .donate-list .d-label { font-weight:600; min-width:52px; }
 .donate-list .d-value { flex:1; color:var(--ink-2); font-size:12.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:ui-monospace,Consolas,monospace; }
+a.d-value { color:var(--accent); text-decoration:none; }
+a.d-value:hover { text-decoration:underline; }
 .copy-btn { background:var(--surface-2); border:1px solid var(--border); color:var(--ink-2); border-radius:6px; padding:4px 9px; cursor:pointer; font-size:12px; }
 .copy-btn:hover { color:var(--ink); }
 
@@ -328,13 +330,11 @@ table.show-net .col-net { display:table-cell; }
 <script>
 'use strict';
 
-// ═════════ Doação — edite com seus dados ═════════
+// ═════════ Doação ═════════
 const DONATE = {
-  projectsUrl: 'https://github.com/SEU-USUARIO',
+  projectsUrl: 'https://github.com/joaoabitante',
   items: [
-    { label: 'PIX', value: 'SUA-CHAVE-PIX-AQUI' },
-    { label: 'BTC', value: 'bc1q-SEU-ENDERECO-BITCOIN' },
-    { label: 'ETH', value: '0x-SEU-ENDERECO-ETHEREUM' },
+    { label: 'LiveTip', value: 'https://livetip.gg/libertcontador' },
   ],
 };
 
@@ -960,9 +960,13 @@ $('feesReset').addEventListener('click', () => {
 });
 
 // ═════════ Doação ═════════
-$('donateList').innerHTML = DONATE.items.map((i) =>
-  '<li><span class="d-label">' + i.label + '</span><span class="d-value">' + i.value + '</span>' +
-  '<button class="copy-btn" data-copy="' + i.value + '" type="button">copiar</button></li>').join('');
+$('donateList').innerHTML = DONATE.items.map((i) => {
+  const v = i.value.startsWith('https://')
+    ? '<a class="d-value" href="' + i.value + '" target="_blank" rel="noopener noreferrer">' + i.value.replace('https://', '') + '</a>'
+    : '<span class="d-value">' + i.value + '</span>';
+  return '<li><span class="d-label">' + i.label + '</span>' + v +
+    '<button class="copy-btn" data-copy="' + i.value + '" type="button">copiar</button></li>';
+}).join('');
 $('linkProjects').href = DONATE.projectsUrl;
 $('linkProjectsModal').href = DONATE.projectsUrl;
 const openDonate = () => $('donateModal').showModal();

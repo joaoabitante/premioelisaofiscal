@@ -266,6 +266,8 @@ table.show-net .col-net { display: table-cell; }
 .donate-list li { display: flex; align-items: center; gap: 10px; background: var(--page); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; }
 .donate-list .d-label { font-weight: 600; min-width: 52px; }
 .donate-list .d-value { flex: 1; color: var(--ink-2); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: ui-monospace, Consolas, monospace; }
+a.d-value { color: var(--accent); text-decoration: none; }
+a.d-value:hover { text-decoration: underline; }
 .copy-btn { background: var(--surface-2); border: 1px solid var(--border); color: var(--ink-2); border-radius: 6px; padding: 4px 9px; cursor: pointer; font-size: 12px; }
 .copy-btn:hover { color: var(--ink); }
 

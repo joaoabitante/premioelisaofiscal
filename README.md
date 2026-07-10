@@ -64,8 +64,8 @@ existem na versão com servidor; e o histórico do gráfico acumula apenas enqua
 Requisitos: **Node.js ≥ 18** (sem nenhuma dependência npm).
 
 ```bash
-git clone <este-repositorio>
-cd premio-cripto
+git clone https://github.com/joaoabitante/premioelisaofiscal.git
+cd premioelisaofiscal
 npm start          # abre em http://localhost:8080
 ```
 
@@ -120,14 +120,13 @@ A cor da série no gráfico, o cálculo do prêmio, o histórico e os alertas pa
 ## ❤️ Apoie o projeto
 
 Este projeto é gratuito e de código aberto (MIT). Se ele te ajudou a capturar um bom spread,
-considere fazer uma doação — os endereços estão no botão **“♥ Apoiar”** do painel
-(configure os seus em `DONATE`, no topo de [public/app.js](public/app.js)):
+considere enviar um LiveTip — como em todos os meus projetos:
 
-- **PIX**: `SUA-CHAVE-PIX-AQUI`
-- **BTC**: `bc1q-SEU-ENDERECO-BITCOIN`
-- **ETH**: `0x-SEU-ENDERECO-ETHEREUM`
+### 👉 [livetip.gg/libertcontador](https://livetip.gg/libertcontador)
 
-👉 **[Conheça todos os meus projetos](https://github.com/SEU-USUARIO)**
+O link também está no botão **“♥ Apoiar”** do painel.
+
+👉 **[Conheça todos os meus projetos](https://github.com/joaoabitante)**
 
 ## Licença
 
