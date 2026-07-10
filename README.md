@@ -124,6 +124,8 @@ considere enviar um LiveTip — como em todos os meus projetos:
 
 ### 👉 [livetip.gg/libertcontador](https://livetip.gg/libertcontador)
 
+<img src="docs/livetip-qr.png" alt="QR code para doação via LiveTip" width="220" />
+
 O link também está no botão **“♥ Apoiar”** do painel.
 
 👉 **[Conheça todos os meus projetos](https://github.com/joaoabitante)**
