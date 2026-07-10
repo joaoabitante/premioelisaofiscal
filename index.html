@@ -231,9 +231,21 @@ table.show-net .col-net { display:table-cell; }
   border-bottom:1px solid var(--grid); font-size:13px; color:var(--ink-2);
 }
 .tax-row:last-child { border-bottom:none; }
-.tax-row b { color:var(--ink); font-variant-numeric:tabular-nums; font-weight:650; }
+.tax-row b { color:var(--ink); font-variant-numeric:tabular-nums; font-weight:650; text-align:right; }
 .tax-row.em { font-size:14.5px; padding-top:8px; }
 .tax-row .pos { color:var(--up); } .tax-row .neg { color:var(--down); }
+.tax-money { display:flex; flex-direction:column; align-items:flex-end; gap:1px; line-height:1.25; }
+.tax-money .brl { font-weight:650; font-variant-numeric:tabular-nums; }
+.tax-money .usd { font-size:11.5px; font-weight:500; color:var(--muted); font-variant-numeric:tabular-nums; }
+.tax-money.pos .brl { color:var(--up); } .tax-money.neg .brl { color:var(--down); }
+.tax-fx-hint { color:var(--muted); font-size:11.5px; margin:0 0 8px; }
+.tax-form .tax-prefix {
+  display:flex; align-items:center; gap:6px; max-width:280px;
+}
+.tax-form .tax-prefix > span {
+  flex:0 0 auto; color:var(--ink-2); font-weight:650; font-size:13.5px; min-width:1.6em;
+}
+.tax-form .tax-prefix input { flex:1; max-width:none; }
 .tax-note { margin:10px 0 0; color:var(--muted); font-size:12px; line-height:1.5; }
 .tax-note a { color:var(--accent); }
 .tax-base-legal {
@@ -416,30 +428,31 @@ a.d-value:hover { text-decoration:underline; }
     </p>
     <div class="tax-grid">
       <div class="tax-form" id="taxForm">
+        <p class="tax-fx-hint" id="taxFxHint">Valores em <b style="color:var(--ink-2)">R$</b> (base do IR). Ao lado dos resultados, <b style="color:var(--ink-2)">US$</b> só para comparação (câmbio ao vivo).</p>
         <label>
-          Custo de aquisição total (R$)
-          <span class="hint">Preço pago na compra + custos da aquisição (em reais)</span>
-          <input type="number" id="taxCusto" min="0" step="0.01" inputmode="decimal" placeholder="ex.: 50000" />
+          Custo de aquisição total
+          <span class="hint">Preço pago na compra + custos da aquisição — em reais (R$)</span>
+          <span class="tax-prefix"><span>R$</span><input type="number" id="taxCusto" min="0" step="0.01" inputmode="decimal" placeholder="50.000,00" /></span>
         </label>
         <label>
-          Valor da alienação total (R$)
-          <span class="hint">Total recebido na venda/troca (preço cheio, antes do IR)</span>
-          <input type="number" id="taxAlienacao" min="0" step="0.01" inputmode="decimal" placeholder="ex.: 55000" />
+          Valor da alienação total
+          <span class="hint">Total recebido na venda/troca (preço cheio, antes do IR) — em R$</span>
+          <span class="tax-prefix"><span>R$</span><input type="number" id="taxAlienacao" min="0" step="0.01" inputmode="decimal" placeholder="55.000,00" /></span>
         </label>
         <label>
-          Custos da operação (R$)
-          <span class="hint">Taxas de trading, saque, rede etc. (deduzem o ganho)</span>
-          <input type="number" id="taxCustosOp" min="0" step="0.01" inputmode="decimal" value="0" />
+          Custos da operação
+          <span class="hint">Taxas de trading, saque, rede etc. (deduzem o ganho) — em R$</span>
+          <span class="tax-prefix"><span>R$</span><input type="number" id="taxCustosOp" min="0" step="0.01" inputmode="decimal" value="0" /></span>
         </label>
         <label>
-          Outras alienações de cripto no mesmo mês (R$) — só regime nacional
+          Outras alienações de cripto no mesmo mês — só regime nacional
           <span class="hint">Soma das demais vendas/permutas no mês (isenção se o total ≤ R$&nbsp;35.000)</span>
-          <input type="number" id="taxOutrasMes" min="0" step="0.01" inputmode="decimal" value="0" />
+          <span class="tax-prefix"><span>R$</span><input type="number" id="taxOutrasMes" min="0" step="0.01" inputmode="decimal" value="0" /></span>
         </label>
         <label>
-          Prejuízos compensáveis no ano (R$) — só regime exterior
-          <span class="hint">Perdas com aplicações financeiras no exterior no mesmo ano-calendário (Lei 14.754/2023)</span>
-          <input type="number" id="taxPrejuizos" min="0" step="0.01" inputmode="decimal" value="0" />
+          Prejuízos compensáveis no ano — só regime exterior
+          <span class="hint">Perdas com aplicações no exterior no mesmo ano-calendário (Lei 14.754/2023) — em R$</span>
+          <span class="tax-prefix"><span>R$</span><input type="number" id="taxPrejuizos" min="0" step="0.01" inputmode="decimal" value="0" /></span>
         </label>
         <label>
           Quantidade do ativo (opcional, p/ preencher com preços ao vivo)
@@ -549,7 +562,7 @@ a.d-value:hover { text-decoration:underline; }
     Não é recomendação de investimento. Câmbio: <span id="fxSource">—</span>.
   </div>
   <div class="footer-links">
-    <button class="btn-link" id="btnChangelog" type="button">📋 v1.5.0 · atualizações</button>
+    <button class="btn-link" id="btnChangelog" type="button">📋 v1.5.1 · atualizações</button>
     <a href="#" id="linkProjects" target="_blank" rel="noopener noreferrer">Conheça meus outros projetos →</a>
     <button class="btn btn-heart" id="btnDonateFooter" type="button">♥ Fazer uma doação</button>
   </div>
@@ -1352,7 +1365,39 @@ function numInput(id) {
 
 function fmtBRL(v) {
   if (!Number.isFinite(v)) return '—';
-  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  // Sempre "R$" explícito — base legal/tributária em reais
+  const n = Math.abs(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return (v < 0 ? '−' : '') + 'R$\u00a0' + n;
+}
+
+function fmtUSD(v) {
+  if (!Number.isFinite(v)) return '—';
+  // "$" só para comparação com o mercado global (não é base do IR)
+  const n = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return (v < 0 ? '−' : '') + '$\u00a0' + n;
+}
+
+/** USD/BRL do painel (S.fx.rates.BRL = quantos R$ por 1 USD). */
+function taxUsdRate() {
+  const r = S?.fx?.rates?.BRL;
+  return (r > 0) ? r : null;
+}
+
+function fmtMoneyPair(vBRL) {
+  if (!Number.isFinite(vBRL)) return '—';
+  const rate = taxUsdRate();
+  const brl = fmtBRL(vBRL);
+  if (!rate) return brl;
+  return brl + ' · ' + fmtUSD(vBRL / rate);
+}
+
+function moneyHtml(vBRL, cls) {
+  if (!Number.isFinite(vBRL)) return '—';
+  const rate = taxUsdRate();
+  const c = cls ? ' tax-money ' + cls : ' tax-money';
+  let h = '<span class="' + c.trim() + '"><span class="brl">' + fmtBRL(vBRL) + '</span>';
+  if (rate) h += '<span class="usd">' + fmtUSD(vBRL / rate) + '</span>';
+  return h + '</span>';
 }
 
 function fmtPctPlain(v) {
@@ -1386,7 +1431,29 @@ function setTaxText(id, text, cls) {
   el.className = cls || '';
 }
 
+function setTaxMoney(id, vBRL, cls) {
+  const el = $(id);
+  if (!Number.isFinite(vBRL)) {
+    el.textContent = '—';
+    el.className = '';
+    return;
+  }
+  el.className = '';
+  el.innerHTML = moneyHtml(vBRL, cls);
+}
+
+function updateTaxFxHint() {
+  const el = $('taxFxHint');
+  if (!el) return;
+  const rate = taxUsdRate();
+  el.innerHTML = rate
+    ? 'Valores em <b style="color:var(--ink-2)">R$</b> (base do IR). Ao lado: <b style="color:var(--ink-2)">$</b> em dólar só para comparação · câmbio <b style="color:var(--ink-2)">USD/BRL ' +
+      rate.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 4 }) + '</b>.'
+    : 'Valores em <b style="color:var(--ink-2)">R$</b> (base do IR). O <b style="color:var(--ink-2)">$</b> (dólar) aparece ao lado quando o câmbio estiver disponível.';
+}
+
 function renderTax() {
+  updateTaxFxHint();
   const r = calcTaxRegimes({
     custo: numInput('taxCusto'),
     alienacao: numInput('taxAlienacao'),
@@ -1395,38 +1462,38 @@ function renderTax() {
     prejuizos: numInput('taxPrejuizos'),
   });
   const gCls = r.ganho > 0 ? 'pos' : r.ganho < 0 ? 'neg' : '';
-  setTaxText('taxNGanho', fmtBRL(r.ganho), gCls);
-  setTaxText('taxNTotalMes', fmtBRL(r.nacional.totalMes));
+  setTaxMoney('taxNGanho', r.ganho, gCls);
+  setTaxMoney('taxNTotalMes', r.nacional.totalMes);
   setTaxText('taxNIsencao', r.nacional.isento
     ? (r.ganho > 0 ? 'sim — ganho isento' : 'sim (limite de alienações)')
     : 'não — total de alienações > R$ 35 mil');
   setTaxText('taxNAliq', r.nacional.isento || r.ganho <= 0 ? '0%' : fmtPctPlain(r.nacional.aliqEfetiva));
-  setTaxText('taxNIr', fmtBRL(r.nacional.ir), r.nacional.ir > 0 ? 'neg' : '');
-  setTaxText('taxNLiq', fmtBRL(r.nacional.liquido), r.nacional.liquido >= 0 ? 'pos' : 'neg');
+  setTaxMoney('taxNIr', r.nacional.ir, r.nacional.ir > 0 ? 'neg' : '');
+  setTaxMoney('taxNLiq', r.nacional.liquido, r.nacional.liquido >= 0 ? 'pos' : 'neg');
 
-  setTaxText('taxEGanho', fmtBRL(r.ganho), gCls);
-  setTaxText('taxEBase', fmtBRL(r.exterior.base), r.exterior.base > 0 ? 'pos' : '');
-  setTaxText('taxEIr', fmtBRL(r.exterior.ir), r.exterior.ir > 0 ? 'neg' : '');
-  setTaxText('taxELiq', fmtBRL(r.exterior.liquido), r.exterior.liquido >= 0 ? 'pos' : 'neg');
+  setTaxMoney('taxEGanho', r.ganho, gCls);
+  setTaxMoney('taxEBase', r.exterior.base, r.exterior.base > 0 ? 'pos' : '');
+  setTaxMoney('taxEIr', r.exterior.ir, r.exterior.ir > 0 ? 'neg' : '');
+  setTaxMoney('taxELiq', r.exterior.liquido, r.exterior.liquido >= 0 ? 'pos' : 'neg');
 
   const cmp = $('taxCompare');
   if (r.ganho <= 0) {
     cmp.hidden = false;
     cmp.textContent = r.ganho < 0
       ? 'Prejuízo apurado: não há IR sobre ganho de capital nesta operação (guarde a documentação). Regime nacional e exterior tratam perdas de forma diferente — no exterior, perdas do ano podem compensar outros ganhos de aplicações no exterior.'
-      : 'Informe custo e alienação para comparar os regimes.';
+      : 'Informe custo e alienação em R$ para comparar os regimes.';
   } else {
     const diff = r.nacional.ir - r.exterior.ir;
     cmp.hidden = false;
     if (r.nacional.isento) {
-      cmp.innerHTML = 'Com isenção nacional, o IR no regime <b>nacional</b> fica <b>R$&nbsp;0</b> nesta simulação; no exterior seria <b>' +
-        fmtBRL(r.exterior.ir) + '</b> (15%). Diferença a favor do nacional: <b class="pos">' + fmtBRL(r.exterior.ir) + '</b>.';
+      cmp.innerHTML = 'Com isenção nacional, o IR no regime <b>nacional</b> fica <b>R$&nbsp;0,00</b> nesta simulação; no exterior seria <b>' +
+        fmtMoneyPair(r.exterior.ir) + '</b> (15%). Diferença a favor do nacional: <b class="pos">' + fmtMoneyPair(r.exterior.ir) + '</b>.';
     } else if (Math.abs(diff) < 0.005) {
-      cmp.textContent = 'IR estimado igual nos dois regimes nesta simulação (' + fmtBRL(r.nacional.ir) + ').';
+      cmp.innerHTML = 'IR estimado igual nos dois regimes nesta simulação (<b>' + fmtMoneyPair(r.nacional.ir) + '</b>).';
     } else if (diff > 0) {
-      cmp.innerHTML = 'Nesta simulação o IR no regime <b>nacional</b> é <b>' + fmtBRL(diff) + '</b> maior que no exterior.';
+      cmp.innerHTML = 'Nesta simulação o IR no regime <b>nacional</b> é <b>' + fmtMoneyPair(diff) + '</b> maior que no exterior.';
     } else {
-      cmp.innerHTML = 'Nesta simulação o IR no regime <b>exterior</b> é <b>' + fmtBRL(-diff) + '</b> maior que no nacional.';
+      cmp.innerHTML = 'Nesta simulação o IR no regime <b>exterior</b> é <b>' + fmtMoneyPair(-diff) + '</b> maior que no nacional.';
     }
   }
 }
@@ -1553,6 +1620,10 @@ $('donateList').addEventListener('click', async (ev) => {
 
 // ═════════ Log de atualizações ═════════
 const CHANGELOG = [
+  { v: '1.5.1', date: '10/07/2026', items: [
+    'Calculadora de IR: valores em R$ (base do imposto) com $ (dólar) ao lado só para comparação, usando o câmbio ao vivo',
+    'Campos de entrada com prefixo R$ e placeholders no formato brasileiro',
+  ] },
   { v: '1.5.0', date: '09/07/2026', items: [
     'Calculadora tributária de ganho de capital: compara regime de exchange nacional (isenção R$ 35 mil + alíquotas 15–22,5%) com exterior (15% fixo, Lei 14.754/2023)',
     'Preenchimento opcional pela janela de arbitragem do ativo selecionado (preços ao vivo)',

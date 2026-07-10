@@ -3,6 +3,13 @@
 Todas as mudanças relevantes do **Prêmio Cripto** são registradas aqui.
 O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/) e o versionamento é [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.5.1] — 2026-07-10
+
+### Alterado
+- Calculadora de IR: **R$** como moeda oficial da apuração (inputs com prefixo R$, formatação `R$ 1.234,56`)
+- Ao lado de cada resultado monetário, **$** (dólar) apenas para comparação, convertido pelo câmbio USD/BRL ao vivo do painel
+- Texto de comparação e dica de câmbio atualizados para deixar claro: IR em reais; $ é só referência
+
 ## [1.5.0] — 2026-07-09
 
 ### Adicionado

@@ -121,30 +121,31 @@
       </p>
       <div class="tax-grid">
         <div class="tax-form" id="taxForm">
+          <p class="tax-fx-hint" id="taxFxHint">Valores em <b style="color:var(--ink-2)">R$</b> (base do IR). Ao lado dos resultados, <b style="color:var(--ink-2)">US$</b> só para comparação (câmbio ao vivo).</p>
           <label>
-            Custo de aquisição total (R$)
-            <span class="hint">Preço pago na compra + custos da aquisição (em reais)</span>
-            <input type="number" id="taxCusto" min="0" step="0.01" inputmode="decimal" placeholder="ex.: 50000" />
+            Custo de aquisição total
+            <span class="hint">Preço pago na compra + custos da aquisição — em reais (R$)</span>
+            <span class="tax-prefix"><span>R$</span><input type="number" id="taxCusto" min="0" step="0.01" inputmode="decimal" placeholder="50.000,00" /></span>
           </label>
           <label>
-            Valor da alienação total (R$)
-            <span class="hint">Total recebido na venda/troca (preço cheio, antes do IR)</span>
-            <input type="number" id="taxAlienacao" min="0" step="0.01" inputmode="decimal" placeholder="ex.: 55000" />
+            Valor da alienação total
+            <span class="hint">Total recebido na venda/troca (preço cheio, antes do IR) — em R$</span>
+            <span class="tax-prefix"><span>R$</span><input type="number" id="taxAlienacao" min="0" step="0.01" inputmode="decimal" placeholder="55.000,00" /></span>
           </label>
           <label>
-            Custos da operação (R$)
-            <span class="hint">Taxas de trading, saque, rede etc. (deduzem o ganho)</span>
-            <input type="number" id="taxCustosOp" min="0" step="0.01" inputmode="decimal" value="0" />
+            Custos da operação
+            <span class="hint">Taxas de trading, saque, rede etc. (deduzem o ganho) — em R$</span>
+            <span class="tax-prefix"><span>R$</span><input type="number" id="taxCustosOp" min="0" step="0.01" inputmode="decimal" value="0" /></span>
           </label>
           <label>
-            Outras alienações de cripto no mesmo mês (R$) — só regime nacional
+            Outras alienações de cripto no mesmo mês — só regime nacional
             <span class="hint">Soma das demais vendas/permutas no mês (isenção se o total ≤ R$&nbsp;35.000)</span>
-            <input type="number" id="taxOutrasMes" min="0" step="0.01" inputmode="decimal" value="0" />
+            <span class="tax-prefix"><span>R$</span><input type="number" id="taxOutrasMes" min="0" step="0.01" inputmode="decimal" value="0" /></span>
           </label>
           <label>
-            Prejuízos compensáveis no ano (R$) — só regime exterior
-            <span class="hint">Perdas com aplicações financeiras no exterior no mesmo ano-calendário (Lei 14.754/2023)</span>
-            <input type="number" id="taxPrejuizos" min="0" step="0.01" inputmode="decimal" value="0" />
+            Prejuízos compensáveis no ano — só regime exterior
+            <span class="hint">Perdas com aplicações no exterior no mesmo ano-calendário (Lei 14.754/2023) — em R$</span>
+            <span class="tax-prefix"><span>R$</span><input type="number" id="taxPrejuizos" min="0" step="0.01" inputmode="decimal" value="0" /></span>
           </label>
           <label>
             Quantidade do ativo (opcional, p/ preencher com preços ao vivo)
@@ -212,7 +213,7 @@
       Dados: APIs públicas das exchanges · câmbio: <span id="fxSource">—</span>.
     </div>
     <div class="footer-links">
-      <a href="https://github.com/joaoabitante/premioelisaofiscal/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">📋 v1.5.0 · atualizações</a>
+      <a href="https://github.com/joaoabitante/premioelisaofiscal/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">📋 v1.5.1 · atualizações</a>
       <a href="#" id="linkProjects" target="_blank" rel="noopener noreferrer">Conheça meus outros projetos →</a>
       <button class="btn btn-heart" id="btnDonateFooter" type="button">♥ Fazer uma doação</button>
     </div>

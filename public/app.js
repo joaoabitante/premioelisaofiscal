@@ -667,7 +667,39 @@ function taxNum(id) {
 
 function fmtBRL(v) {
   if (!Number.isFinite(v)) return '—';
-  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  // Sempre "R$" explícito — base legal/tributária em reais
+  const n = Math.abs(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return (v < 0 ? '−' : '') + 'R$\u00a0' + n;
+}
+
+function fmtUSD(v) {
+  if (!Number.isFinite(v)) return '—';
+  // "$" só para comparação com o mercado global (não é base do IR)
+  const n = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return (v < 0 ? '−' : '') + '$\u00a0' + n;
+}
+
+/** USD/BRL do painel (S.fx.rates.BRL = quantos R$ por 1 USD). */
+function taxUsdRate() {
+  const r = S?.fx?.rates?.BRL;
+  return (r > 0) ? r : null;
+}
+
+function fmtMoneyPair(vBRL) {
+  if (!Number.isFinite(vBRL)) return '—';
+  const rate = taxUsdRate();
+  const brl = fmtBRL(vBRL);
+  if (!rate) return brl;
+  return brl + ' · ' + fmtUSD(vBRL / rate);
+}
+
+function moneyHtml(vBRL, cls) {
+  if (!Number.isFinite(vBRL)) return '—';
+  const rate = taxUsdRate();
+  const c = cls ? ' tax-money ' + cls : ' tax-money';
+  let h = '<span class="' + c.trim() + '"><span class="brl">' + fmtBRL(vBRL) + '</span>';
+  if (rate) h += '<span class="usd">' + fmtUSD(vBRL / rate) + '</span>';
+  return h + '</span>';
 }
 
 function fmtPctPlain(v) {
@@ -702,8 +734,31 @@ function setTaxText(id, text, cls) {
   el.className = cls || '';
 }
 
+function setTaxMoney(id, vBRL, cls) {
+  const el = $(id);
+  if (!el) return;
+  if (!Number.isFinite(vBRL)) {
+    el.textContent = '—';
+    el.className = '';
+    return;
+  }
+  el.className = '';
+  el.innerHTML = moneyHtml(vBRL, cls);
+}
+
+function updateTaxFxHint() {
+  const el = $('taxFxHint');
+  if (!el) return;
+  const rate = taxUsdRate();
+  el.innerHTML = rate
+    ? 'Valores em <b style="color:var(--ink-2)">R$</b> (base do IR). Ao lado: <b style="color:var(--ink-2)">$</b> em dólar só para comparação · câmbio <b style="color:var(--ink-2)">USD/BRL ' +
+      rate.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 4 }) + '</b>.'
+    : 'Valores em <b style="color:var(--ink-2)">R$</b> (base do IR). O <b style="color:var(--ink-2)">$</b> (dólar) aparece ao lado quando o câmbio estiver disponível.';
+}
+
 function renderTax() {
   if (!$('taxCusto')) return;
+  updateTaxFxHint();
   const r = calcTaxRegimes({
     custo: taxNum('taxCusto'),
     alienacao: taxNum('taxAlienacao'),
@@ -712,18 +767,18 @@ function renderTax() {
     prejuizos: taxNum('taxPrejuizos'),
   });
   const gCls = r.ganho > 0 ? 'pos' : r.ganho < 0 ? 'neg' : '';
-  setTaxText('taxNGanho', fmtBRL(r.ganho), gCls);
-  setTaxText('taxNTotalMes', fmtBRL(r.nacional.totalMes));
+  setTaxMoney('taxNGanho', r.ganho, gCls);
+  setTaxMoney('taxNTotalMes', r.nacional.totalMes);
   setTaxText('taxNIsencao', r.nacional.isento
     ? (r.ganho > 0 ? 'sim — ganho isento' : 'sim (limite de alienações)')
     : 'não — total de alienações > R$ 35 mil');
   setTaxText('taxNAliq', r.nacional.isento || r.ganho <= 0 ? '0%' : fmtPctPlain(r.nacional.aliqEfetiva));
-  setTaxText('taxNIr', fmtBRL(r.nacional.ir), r.nacional.ir > 0 ? 'neg' : '');
-  setTaxText('taxNLiq', fmtBRL(r.nacional.liquido), r.nacional.liquido >= 0 ? 'pos' : 'neg');
-  setTaxText('taxEGanho', fmtBRL(r.ganho), gCls);
-  setTaxText('taxEBase', fmtBRL(r.exterior.base), r.exterior.base > 0 ? 'pos' : '');
-  setTaxText('taxEIr', fmtBRL(r.exterior.ir), r.exterior.ir > 0 ? 'neg' : '');
-  setTaxText('taxELiq', fmtBRL(r.exterior.liquido), r.exterior.liquido >= 0 ? 'pos' : 'neg');
+  setTaxMoney('taxNIr', r.nacional.ir, r.nacional.ir > 0 ? 'neg' : '');
+  setTaxMoney('taxNLiq', r.nacional.liquido, r.nacional.liquido >= 0 ? 'pos' : 'neg');
+  setTaxMoney('taxEGanho', r.ganho, gCls);
+  setTaxMoney('taxEBase', r.exterior.base, r.exterior.base > 0 ? 'pos' : '');
+  setTaxMoney('taxEIr', r.exterior.ir, r.exterior.ir > 0 ? 'neg' : '');
+  setTaxMoney('taxELiq', r.exterior.liquido, r.exterior.liquido >= 0 ? 'pos' : 'neg');
 
   const cmp = $('taxCompare');
   if (!cmp) return;
@@ -731,19 +786,19 @@ function renderTax() {
     cmp.hidden = false;
     cmp.textContent = r.ganho < 0
       ? 'Prejuízo apurado: não há IR sobre ganho de capital nesta operação (guarde a documentação). No exterior, perdas do ano podem compensar outros ganhos de aplicações no exterior.'
-      : 'Informe custo e alienação para comparar os regimes.';
+      : 'Informe custo e alienação em R$ para comparar os regimes.';
   } else {
     const diff = r.nacional.ir - r.exterior.ir;
     cmp.hidden = false;
     if (r.nacional.isento) {
-      cmp.innerHTML = 'Com isenção nacional, o IR no regime <b>nacional</b> fica <b>R$&nbsp;0</b> nesta simulação; no exterior seria <b>' +
-        fmtBRL(r.exterior.ir) + '</b> (15%). Diferença a favor do nacional: <b class="pos">' + fmtBRL(r.exterior.ir) + '</b>.';
+      cmp.innerHTML = 'Com isenção nacional, o IR no regime <b>nacional</b> fica <b>R$&nbsp;0,00</b> nesta simulação; no exterior seria <b>' +
+        fmtMoneyPair(r.exterior.ir) + '</b> (15%). Diferença a favor do nacional: <b class="pos">' + fmtMoneyPair(r.exterior.ir) + '</b>.';
     } else if (Math.abs(diff) < 0.005) {
-      cmp.textContent = 'IR estimado igual nos dois regimes nesta simulação (' + fmtBRL(r.nacional.ir) + ').';
+      cmp.innerHTML = 'IR estimado igual nos dois regimes nesta simulação (<b>' + fmtMoneyPair(r.nacional.ir) + '</b>).';
     } else if (diff > 0) {
-      cmp.innerHTML = 'Nesta simulação o IR no regime <b>nacional</b> é <b>' + fmtBRL(diff) + '</b> maior que no exterior.';
+      cmp.innerHTML = 'Nesta simulação o IR no regime <b>nacional</b> é <b>' + fmtMoneyPair(diff) + '</b> maior que no exterior.';
     } else {
-      cmp.innerHTML = 'Nesta simulação o IR no regime <b>exterior</b> é <b>' + fmtBRL(-diff) + '</b> maior que no nacional.';
+      cmp.innerHTML = 'Nesta simulação o IR no regime <b>exterior</b> é <b>' + fmtMoneyPair(-diff) + '</b> maior que no nacional.';
     }
   }
 }
