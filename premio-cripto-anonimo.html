@@ -1,0 +1,918 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- ══════════════════ PRIVACIDADE ══════════════════
+  Arquivo único, 100% HTML/JS/CSS inline. Funciona aberto direto do disco
+  (duplo clique) ou hospedado em qualquer lugar.
+
+  • NADA é gravado: sem localStorage, sem cookies, sem IndexedDB, sem servidor.
+    Configurações, histórico e alertas vivem só na memória da aba e somem ao fechar.
+  • A CSP abaixo é imposta pelo navegador: esta página SÓ consegue falar com as
+    APIs públicas listadas — nenhum outro destino, nenhum script externo.
+  • Requisições saem sem referrer, sem credenciais e sem cache.
+  • O que resta visível: requisições HTTPS normais do seu IP para as exchanges
+    (o mesmo que visitar o site delas). Para ocultar o IP, use VPN/Tor.
+  ═══════════════════════════════════════════════════ -->
+<meta name="referrer" content="no-referrer" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src https://api.binance.com https://api.exchange.coinbase.com https://api.kraken.com https://api.bybit.com https://www.okx.com https://api.mercadobitcoin.net https://api.foxbit.com.br https://api.upbit.com https://api.bithumb.com https://open.er-api.com https://cdn.jsdelivr.net; base-uri 'none'; form-action 'none'" />
+<title>Prêmio Cripto — anônimo, 100% navegador</title>
+<style>
+:root {
+  --page:#0d0d0d; --surface:#1a1a19; --surface-2:#222220;
+  --border:rgba(255,255,255,.1); --ink:#fff; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --baseline:#4a4a46;
+  --up:#0ca30c; --down:#e66767; --warn:#fab219; --accent:#3987e5;
+}
+* { box-sizing:border-box; }
+body { margin:0; background:var(--page); color:var(--ink); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-size:15px; line-height:1.45; }
+button { font-family:inherit; }
+
+.topbar { position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:10px 20px; background:rgba(13,13,13,.92); backdrop-filter:blur(6px); border-bottom:1px solid var(--border); }
+.brand { display:flex; align-items:center; gap:10px; }
+.brand-bolt { font-size:26px; }
+.brand strong { font-size:17px; letter-spacing:.02em; }
+.brand small { display:block; color:var(--muted); font-size:11.5px; }
+.asset-tabs { display:flex; gap:6px; flex-wrap:wrap; }
+.asset-tab { background:var(--surface); border:1px solid var(--border); color:var(--ink-2); padding:7px 14px; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; transition:background .2s,color .2s; }
+.asset-tab:hover { background:var(--surface-2); color:var(--ink); }
+.asset-tab.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+.top-actions { margin-left:auto; display:flex; align-items:center; gap:10px; }
+.conn { display:inline-flex; align-items:center; gap:6px; color:var(--muted); font-size:12.5px; }
+.conn-dot { width:9px; height:9px; border-radius:50%; background:var(--warn); transition:background .3s; }
+.conn.live .conn-dot { background:var(--up); box-shadow:0 0 6px rgba(12,163,12,.7); }
+.conn.live .conn-label { color:var(--ink-2); }
+.conn.down .conn-dot { background:var(--down); }
+.btn { background:var(--surface); border:1px solid var(--border); color:var(--ink-2); padding:7px 13px; border-radius:8px; cursor:pointer; font-size:13.5px; transition:background .2s,color .2s; }
+.btn:hover { background:var(--surface-2); color:var(--ink); }
+.btn-primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+.btn-heart { color:#d55181; border-color:rgba(213,81,129,.4); }
+.btn-heart:hover { background:rgba(213,81,129,.12); color:#e87ba4; }
+.anon-badge { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:var(--up); border:1px solid rgba(12,163,12,.35); border-radius:999px; padding:3px 10px; }
+
+main { max-width:1280px; margin:0 auto; padding:18px 20px 40px; display:grid; gap:16px; }
+.two-col { display:grid; grid-template-columns:2fr 1fr; gap:16px; }
+@media (max-width:980px){ .two-col { grid-template-columns:1fr; } }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 18px; min-width:0; }
+.card-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
+.card h2 { margin:0; font-size:15.5px; font-weight:600; }
+.card h3 { font-size:13px; color:var(--ink-2); margin:14px 0 6px; }
+.foot-note { color:var(--muted); font-size:12px; margin:10px 2px 0; }
+
+.privacy-note { border:1px solid rgba(12,163,12,.3); background:rgba(12,163,12,.06); border-radius:12px; padding:10px 16px; color:var(--ink-2); font-size:13px; }
+.privacy-note b { color:var(--up); }
+
+.tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+@media (max-width:900px){ .tiles { grid-template-columns:repeat(2,1fr); } }
+.tile { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:13px 16px; min-width:0; }
+.tile-label { color:var(--muted); font-size:12px; margin-bottom:4px; }
+.tile-value { font-size:24px; font-weight:650; }
+.tile-sub { color:var(--ink-2); font-size:12.5px; margin-top:2px; }
+.tile-value.pos { color:var(--up); } .tile-value.neg { color:var(--down); }
+@media (max-width:520px){ .tile-value { font-size:19px; } }
+
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+th,td { padding:9px 12px; text-align:left; white-space:nowrap; }
+th { color:var(--muted); font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; font-weight:600; border-bottom:1px solid var(--grid); }
+td { border-bottom:1px solid var(--grid); font-size:14.5px; }
+tbody tr:last-child td { border-bottom:none; }
+.num { text-align:right; }
+.group-row td { color:var(--muted); font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; background:var(--surface-2); padding:6px 12px; white-space:normal; }
+.ex-name { display:flex; align-items:center; gap:8px; font-weight:600; }
+.ex-chip { width:10px; height:10px; border-radius:3px; flex:0 0 auto; }
+.ex-name a { color:inherit; text-decoration:none; }
+.ex-name a:hover { text-decoration:underline; }
+td.market { color:var(--muted); font-size:12.5px; }
+.price-cell { font-size:15.5px; }
+.premium-cell { font-weight:700; font-size:15.5px; }
+.pos { color:var(--up); } .neg { color:var(--down); } .na { color:var(--muted); font-weight:400; }
+td.age { color:var(--muted); font-size:12.5px; }
+.flash-up { animation:flashUp .9s ease-out; } .flash-down { animation:flashDown .9s ease-out; }
+@keyframes flashUp { 0%{color:var(--up);} 100%{color:inherit;} }
+@keyframes flashDown { 0%{color:var(--down);} 100%{color:inherit;} }
+.status { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-2); }
+.status-dot { width:8px; height:8px; border-radius:50%; }
+.status.ok .status-dot { background:var(--up); }
+.status.warn .status-dot { background:var(--warn); }
+.status.off .status-dot { background:var(--down); }
+.status.warn { color:var(--warn); } .status.off { color:var(--down); }
+tr.alert-row td:first-child { box-shadow:inset 3px 0 0 var(--warn); }
+tr.stale td { opacity:.55; }
+.net-toggle { display:inline-flex; align-items:center; gap:7px; color:var(--ink-2); font-size:13px; cursor:pointer; }
+.col-net { display:none; }
+table.show-net .col-net { display:table-cell; }
+
+.range-tabs { display:flex; gap:4px; background:var(--surface-2); border-radius:8px; padding:3px; }
+.range-btn { background:transparent; border:0; color:var(--muted); padding:5px 12px; border-radius:6px; cursor:pointer; font-size:12.5px; font-weight:600; }
+.range-btn.active { background:var(--page); color:var(--ink); }
+.legend { display:flex; flex-wrap:wrap; gap:6px 14px; margin:2px 0 8px; }
+.legend-item { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-2); cursor:pointer; border:0; background:none; padding:2px 0; }
+.legend-item .ex-chip { width:11px; height:11px; }
+.legend-item.off { opacity:.35; text-decoration:line-through; }
+.legend-item .lv { color:var(--muted); }
+.chart-box { position:relative; }
+#chart { width:100%; height:320px; display:block; }
+.chart-empty { fill:var(--muted); font-size:13px; }
+.chart-tip { position:absolute; pointer-events:none; background:#0d0d0dee; border:1px solid var(--border); border-radius:8px; padding:8px 11px; font-size:12.5px; min-width:150px; z-index:5; }
+.chart-tip .tip-time { color:var(--muted); margin-bottom:5px; font-size:11.5px; }
+.chart-tip .tip-row { display:flex; align-items:center; gap:6px; justify-content:space-between; padding:1px 0; }
+.chart-tip .tip-row b { font-variant-numeric:tabular-nums; font-weight:600; margin-left:12px; }
+.chart-tip .tip-name { display:inline-flex; align-items:center; gap:6px; color:var(--ink-2); }
+
+.alert-controls { display:grid; gap:10px; color:var(--ink-2); font-size:13.5px; }
+.alert-controls input[type="number"] { width:70px; background:var(--page); color:var(--ink); border:1px solid var(--border); border-radius:6px; padding:5px 8px; font-size:14px; }
+.check { display:flex; align-items:center; gap:8px; cursor:pointer; }
+.alert-log { list-style:none; margin:0; padding:0; max-height:260px; overflow-y:auto; }
+.alert-log li { padding:7px 2px; border-bottom:1px solid var(--grid); font-size:13px; color:var(--ink-2); display:flex; justify-content:space-between; gap:8px; }
+.alert-log li .when { color:var(--muted); font-size:11.5px; white-space:nowrap; }
+.alert-log li.empty { color:var(--muted); border:0; }
+
+.site-footer { max-width:1280px; margin:0 auto; padding:18px 20px 34px; color:var(--muted); font-size:13px; display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; border-top:1px solid var(--border); }
+.site-footer a { color:var(--ink-2); }
+.footer-links { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+
+.modal { background:var(--surface); color:var(--ink); border:1px solid var(--border); border-radius:14px; padding:20px 22px; max-width:560px; width:calc(100vw - 40px); }
+.modal::backdrop { background:rgba(0,0,0,.6); }
+.modal h2 { margin:0 0 8px; font-size:17px; }
+.modal-hint { color:var(--ink-2); font-size:13.5px; }
+.modal-hint a { color:var(--accent); }
+.modal-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:16px; }
+.fees-table input { width:84px; background:var(--page); color:var(--ink); border:1px solid var(--border); border-radius:6px; padding:4px 7px; text-align:right; font-size:13.5px; }
+.ref-fee { display:block; margin-top:12px; color:var(--ink-2); font-size:13.5px; }
+.ref-fee input { width:84px; background:var(--page); color:var(--ink); border:1px solid var(--border); border-radius:6px; padding:4px 7px; text-align:right; }
+.donate-list { list-style:none; padding:0; margin:12px 0; display:grid; gap:9px; }
+.donate-list li { display:flex; align-items:center; gap:10px; background:var(--page); border:1px solid var(--border); border-radius:8px; padding:9px 12px; }
+.donate-list .d-label { font-weight:600; min-width:52px; }
+.donate-list .d-value { flex:1; color:var(--ink-2); font-size:12.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:ui-monospace,Consolas,monospace; }
+.copy-btn { background:var(--surface-2); border:1px solid var(--border); color:var(--ink-2); border-radius:6px; padding:4px 9px; cursor:pointer; font-size:12px; }
+.copy-btn:hover { color:var(--ink); }
+
+@media (max-width:640px){
+  .topbar { padding:10px 12px; }
+  main { padding:12px 10px 30px; }
+  .card { padding:12px; }
+  th,td { padding:8px 8px; }
+  .top-actions { margin-left:0; }
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-bolt">⚡</span>
+    <div>
+      <strong>Prêmio Cripto</strong>
+      <small>100% navegador · nada é gravado</small>
+    </div>
+  </div>
+  <nav class="asset-tabs" id="assetTabs" aria-label="Selecionar ativo"></nav>
+  <div class="top-actions">
+    <span class="anon-badge">🔒 anônimo</span>
+    <span class="conn" id="conn"><span class="conn-dot"></span><span class="conn-label">coletando…</span></span>
+    <button class="btn" id="btnFees" type="button">Taxas</button>
+    <button class="btn btn-heart" id="btnDonate" type="button">♥ Apoiar</button>
+  </div>
+</header>
+
+<main>
+  <div class="privacy-note">
+    <b>Modo anônimo:</b> este arquivo roda inteiro no seu navegador. Nenhum dado é gravado
+    (sem cookies, sem localStorage, sem servidor) — histórico, taxas e alertas vivem só nesta aba
+    e desaparecem ao fechá-la. A página só consegue se comunicar com as APIs públicas das exchanges
+    (bloqueio imposto pelo navegador via CSP). O que sai daqui são requisições HTTPS comuns do seu
+    IP — para ocultá-lo, use VPN ou Tor.
+  </div>
+
+  <section class="tiles" id="tiles" aria-label="Resumo"></section>
+
+  <section class="card table-card">
+    <div class="card-head">
+      <h2>Preços e prêmios — <span id="tableAsset">BTC</span></h2>
+      <label class="net-toggle"><input type="checkbox" id="netToggle" /><span>Prêmio líquido (descontar taxas)</span></label>
+    </div>
+    <div class="table-wrap">
+      <table id="priceTable">
+        <thead>
+          <tr>
+            <th>Exchange</th><th>Mercado</th>
+            <th class="num">Preço local</th><th class="num">Preço em USD</th>
+            <th class="num">Prêmio</th><th class="num col-net">Líquido</th>
+            <th class="num">Atualizado</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyLocal">
+          <tr class="group-row"><td colspan="8">Exchanges locais / regionais — ordenadas pelo maior prêmio</td></tr>
+        </tbody>
+        <tbody id="tbodyGlobal">
+          <tr class="group-row"><td colspan="8">Exchanges globais (referência = mediana em USD) — coluna “Prêmio” mostra o desvio vs. mediana</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="foot-note" id="netNote" hidden>Líquido = prêmio − taxa de trading local − taxa de trading da global de referência − taxa de saque. Edite em “Taxas”.</p>
+    <p class="foot-note">NovaDAX, Bitso e Bitfinex não permitem chamadas diretas do navegador (CORS) e só existem na versão com servidor deste projeto.</p>
+  </section>
+
+  <div class="two-col">
+    <section class="card chart-card">
+      <div class="card-head">
+        <h2>Histórico do prêmio — <span id="chartAsset">BTC</span></h2>
+        <div class="range-tabs" role="tablist" aria-label="Período">
+          <button class="range-btn" data-range="1h" type="button">1 h</button>
+          <button class="range-btn active" data-range="6h" type="button">6 h</button>
+          <button class="range-btn" data-range="24h" type="button">24 h</button>
+        </div>
+      </div>
+      <div class="legend" id="legend"></div>
+      <div class="chart-box" id="chartBox">
+        <svg id="chart" role="img" aria-label="Gráfico do prêmio ao longo do tempo"></svg>
+        <div class="chart-tip" id="chartTip" hidden></div>
+      </div>
+      <p class="foot-note">Por privacidade o histórico vive só na memória: acumula enquanto a aba está aberta e é apagado ao fechar.</p>
+    </section>
+
+    <section class="card alerts-card">
+      <div class="card-head"><h2>Alertas</h2></div>
+      <div class="alert-controls">
+        <label>Avisar quando |prêmio| ≥ <input type="number" id="alertThreshold" min="0.1" step="0.1" value="2" /> %</label>
+        <label class="check"><input type="checkbox" id="alertNotify" /> Notificação do navegador</label>
+        <label class="check"><input type="checkbox" id="alertSound" checked /> Som</label>
+      </div>
+      <h3>Últimos alertas</h3>
+      <ol class="alert-log" id="alertLog"><li class="empty">Nenhum alerta ainda.</li></ol>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div>
+    <strong>Prêmio Cripto</strong> — open source (MIT), somente monitoramento, dados reais ao vivo.
+    Não é recomendação de investimento. Câmbio: <span id="fxSource">—</span>.
+  </div>
+  <div class="footer-links">
+    <a href="#" id="linkProjects" target="_blank" rel="noopener noreferrer">Conheça meus outros projetos →</a>
+    <button class="btn btn-heart" id="btnDonateFooter" type="button">♥ Fazer uma doação</button>
+  </div>
+</footer>
+
+<dialog id="feesModal" class="modal">
+  <h2>Taxas por exchange</h2>
+  <p class="modal-hint">Valores padrão aproximados (taker). Por privacidade, os ajustes valem só nesta aba e não são salvos.</p>
+  <div class="table-wrap">
+    <table class="fees-table">
+      <thead><tr><th>Exchange</th><th class="num">Trading %</th><th class="num">Saque %</th></tr></thead>
+      <tbody id="feesBody"></tbody>
+    </table>
+  </div>
+  <label class="ref-fee">Taxa de trading da global de referência (%): <input type="number" id="refFee" min="0" step="0.05" /></label>
+  <div class="modal-actions">
+    <button class="btn" id="feesReset" type="button">Restaurar padrão</button>
+    <button class="btn btn-primary" id="feesClose" type="button">Fechar</button>
+  </div>
+</dialog>
+
+<dialog id="donateModal" class="modal">
+  <h2>♥ Apoie este projeto</h2>
+  <p class="modal-hint">O Prêmio Cripto é gratuito e open source. Se ele te ajudou a pegar um bom spread, considere uma doação:</p>
+  <ul class="donate-list" id="donateList"></ul>
+  <p class="modal-hint"><a href="#" id="linkProjectsModal" target="_blank" rel="noopener noreferrer">Conheça todos os meus projetos →</a></p>
+  <div class="modal-actions"><button class="btn btn-primary" id="donateClose" type="button">Fechar</button></div>
+</dialog>
+
+<script>
+'use strict';
+
+// ═════════ Doação — edite com seus dados ═════════
+const DONATE = {
+  projectsUrl: 'https://github.com/SEU-USUARIO',
+  items: [
+    { label: 'PIX', value: 'SUA-CHAVE-PIX-AQUI' },
+    { label: 'BTC', value: 'bc1q-SEU-ENDERECO-BITCOIN' },
+    { label: 'ETH', value: '0x-SEU-ENDERECO-ETHEREUM' },
+  ],
+};
+
+// ═════════ Exchanges (somente APIs que aceitam chamada direta do navegador) ═════════
+const ASSETS = ['BTC', 'ETH', 'SOL', 'XRP', 'USDT'];
+const POLL_MS = 7000;
+const STALE_MS = 45000;
+const FX_TTL = 10 * 60 * 1000;
+
+const FETCH_OPTS = { credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store' };
+
+async function getJSON(url) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 6000);
+  try {
+    const res = await fetch(url, { ...FETCH_OPTS, signal: ctrl.signal });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+  } finally { clearTimeout(timer); }
+}
+const num = (v) => { const n = Number(v); return Number.isFinite(n) && n > 0 ? n : null; };
+async function perAsset(assets, fn) {
+  const out = {};
+  await Promise.all(assets.map(async (a) => { try { out[a] = await fn(a); } catch { out[a] = null; } }));
+  return out;
+}
+
+const EXCHANGES = [
+  { id: 'binance', name: 'Binance', kind: 'global', currency: 'USD', region: 'Global',
+    url: 'https://www.binance.com', fees: { trading: 0.1, withdrawal: 0 },
+    async fetchPrices(assets) {
+      const wanted = assets.filter((a) => a !== 'USDT');
+      const symbols = encodeURIComponent(JSON.stringify(wanted.map((a) => a + 'USDT')));
+      const data = await getJSON('https://api.binance.com/api/v3/ticker/price?symbols=' + symbols);
+      const out = {};
+      for (const a of wanted) { const r = data.find((x) => x.symbol === a + 'USDT'); out[a] = r ? num(r.price) : null; }
+      return out;
+    } },
+  { id: 'coinbase', name: 'Coinbase', kind: 'global', currency: 'USD', region: 'Global',
+    url: 'https://www.coinbase.com', fees: { trading: 0.6, withdrawal: 0 },
+    fetchPrices(assets) {
+      return perAsset(assets, async (a) => num((await getJSON('https://api.exchange.coinbase.com/products/' + a + '-USD/ticker')).price));
+    } },
+  { id: 'kraken', name: 'Kraken', kind: 'global', currency: 'USD', region: 'Global',
+    url: 'https://www.kraken.com', fees: { trading: 0.25, withdrawal: 0 },
+    async fetchPrices(assets) {
+      const pairs = assets.map((a) => (a === 'BTC' ? 'XBTUSD' : a + 'USD')).join(',');
+      const data = await getJSON('https://api.kraken.com/0/public/Ticker?pair=' + pairs);
+      const out = {};
+      for (const [key, tick] of Object.entries(data.result || {})) {
+        const asset = key.includes('USDT') ? 'USDT' : key.includes('XBT') ? 'BTC'
+          : assets.find((a) => a !== 'USDT' && key.includes(a));
+        if (asset && assets.includes(asset)) out[asset] = num(tick.c && tick.c[0]);
+      }
+      return out;
+    } },
+  { id: 'bybit', name: 'Bybit', kind: 'global', currency: 'USD', region: 'Global',
+    url: 'https://www.bybit.com', fees: { trading: 0.1, withdrawal: 0 },
+    fetchPrices(assets) {
+      return perAsset(assets.filter((a) => a !== 'USDT'), async (a) =>
+        num((await getJSON('https://api.bybit.com/v5/market/tickers?category=spot&symbol=' + a + 'USDT')).result?.list?.[0]?.lastPrice));
+    } },
+  { id: 'okx', name: 'OKX', kind: 'global', currency: 'USD', region: 'Global',
+    url: 'https://www.okx.com', fees: { trading: 0.1, withdrawal: 0 },
+    fetchPrices(assets) {
+      return perAsset(assets.filter((a) => a !== 'USDT'), async (a) =>
+        num((await getJSON('https://www.okx.com/api/v5/market/ticker?instId=' + a + '-USDT')).data?.[0]?.last));
+    } },
+  { id: 'mercadobitcoin', name: 'Mercado Bitcoin', kind: 'local', currency: 'BRL', region: 'Brasil',
+    url: 'https://www.mercadobitcoin.com.br', fees: { trading: 0.7, withdrawal: 0 },
+    async fetchPrices(assets) {
+      const data = await getJSON('https://api.mercadobitcoin.net/api/v4/tickers?symbols=' + assets.map((a) => a + '-BRL').join(','));
+      const out = {};
+      for (const a of assets) { const r = data.find((x) => x.pair === a + '-BRL'); out[a] = r ? num(r.last) : null; }
+      return out;
+    } },
+  { id: 'foxbit', name: 'Foxbit', kind: 'local', currency: 'BRL', region: 'Brasil',
+    url: 'https://foxbit.com.br', fees: { trading: 0.5, withdrawal: 0 },
+    async fetchPrices(assets) {
+      const data = await getJSON('https://api.foxbit.com.br/rest/v3/markets/ticker/24hr');
+      const list = data.data || [];
+      const out = {};
+      for (const a of assets) { const r = list.find((x) => x.market_symbol === a.toLowerCase() + 'brl'); out[a] = r ? num(r.last_trade?.price) : null; }
+      return out;
+    } },
+  { id: 'upbit', name: 'Upbit', kind: 'local', currency: 'KRW', region: 'Coreia do Sul',
+    url: 'https://upbit.com', fees: { trading: 0.05, withdrawal: 0 },
+    async fetchPrices(assets) {
+      const data = await getJSON('https://api.upbit.com/v1/ticker?markets=' + assets.map((a) => 'KRW-' + a).join(','));
+      const out = {};
+      for (const a of assets) { const r = data.find((x) => x.market === 'KRW-' + a); out[a] = r ? num(r.trade_price) : null; }
+      return out;
+    } },
+  { id: 'bithumb', name: 'Bithumb', kind: 'local', currency: 'KRW', region: 'Coreia do Sul',
+    url: 'https://www.bithumb.com', fees: { trading: 0.25, withdrawal: 0 },
+    async fetchPrices(assets) {
+      const data = await getJSON('https://api.bithumb.com/public/ticker/ALL_KRW');
+      if (data.status !== '0000') throw new Error('Bithumb ' + data.status);
+      const out = {};
+      for (const a of assets) out[a] = num(data.data?.[a]?.closing_price);
+      return out;
+    } },
+];
+
+// ═════════ Câmbio (cache em memória + fallback) ═════════
+const CURRENCIES = [...new Set(EXCHANGES.map((e) => e.currency))];
+let fxCache = { rates: null, updatedAt: 0, source: null };
+
+async function refreshFx() {
+  if (fxCache.rates && Date.now() - fxCache.updatedAt < FX_TTL) return;
+  try {
+    const data = await getJSON('https://open.er-api.com/v6/latest/USD');
+    if (data.result !== 'success') throw new Error('er-api');
+    const rates = { USD: 1 };
+    for (const c of CURRENCIES) if (c !== 'USD') rates[c] = Number(data.rates[c]);
+    fxCache = { rates, updatedAt: Date.now(), source: 'exchangerate-api.com' };
+  } catch {
+    try {
+      const data = await getJSON('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
+      const rates = { USD: 1 };
+      for (const c of CURRENCIES) if (c !== 'USD') rates[c] = Number(data.usd[c.toLowerCase()]);
+      fxCache = { rates, updatedAt: Date.now(), source: 'currency-api (fawazahmed0)' };
+    } catch { /* mantém o cache antigo */ }
+  }
+}
+
+// ═════════ Estado (tudo em memória — nada é persistido, por privacidade) ═════════
+const S = {
+  ts: 0, assets: ASSETS,
+  exchanges: EXCHANGES.map(({ id, name, kind, currency, region, url, fees }) => ({ id, name, kind, currency, region, url, fees })),
+  fx: fxCache, reference: {}, prices: {}, premiums: {}, errors: {}, staleAfterMs: STALE_MS,
+};
+for (const a of ASSETS) { S.prices[a] = {}; S.premiums[a] = {}; }
+
+// hist[asset][exId] = [[ts, pct]] — buckets de 1 min, máx. 24h, só memória
+const hist = {};
+for (const a of ASSETS) { hist[a] = {}; for (const e of EXCHANGES) hist[a][e.id] = []; }
+
+let asset = 'BTC';
+let range = '6h';
+let showNet = false;
+const hiddenSeries = new Set();
+const feesOv = {};
+const alertCfg = { threshold: 2, notify: false, sound: true };
+let alertLog = [];
+const lastAlertAt = new Map();
+const ALERT_COOLDOWN = 5 * 60000;
+let ready = false;
+
+const median = (vs) => {
+  const v = vs.filter(Number.isFinite).sort((a, b) => a - b);
+  if (!v.length) return null;
+  const m = Math.floor(v.length / 2);
+  return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2;
+};
+
+async function cycle() {
+  const now = Date.now();
+  const fxP = refreshFx();
+  const results = await Promise.all(EXCHANGES.map(async (ex) => {
+    try { return { ex, prices: await ex.fetchPrices(ASSETS) }; }
+    catch (err) { return { ex, error: err.message || String(err) }; }
+  }));
+  await fxP;
+  S.fx = fxCache;
+
+  for (const { ex, prices, error } of results) {
+    if (error) { S.errors[ex.id] = { message: error, ts: now }; continue; }
+    delete S.errors[ex.id];
+    for (const a of ASSETS) {
+      const p = prices?.[a];
+      if (Number.isFinite(p) && p > 0) S.prices[a][ex.id] = { price: p, ts: now };
+    }
+  }
+
+  for (const a of ASSETS) {
+    const globals = EXCHANGES.filter((e) => e.kind === 'global')
+      .map((e) => S.prices[a][e.id]).filter((p) => p && now - p.ts <= STALE_MS).map((p) => p.price);
+    S.reference[a] = median(globals);
+    const ref = S.reference[a];
+    for (const ex of EXCHANGES) {
+      const entry = S.prices[a][ex.id];
+      let pct = null;
+      if (ref && entry && S.fx.rates?.[ex.currency]) {
+        pct = (entry.price / (ref * S.fx.rates[ex.currency]) - 1) * 100;
+      }
+      S.premiums[a][ex.id] = pct;
+      if (pct !== null && ex.kind === 'local' && now - entry.ts <= STALE_MS) {
+        const arr = hist[a][ex.id];
+        const bt = Math.floor(now / 60000) * 60000;
+        if (arr.length && arr[arr.length - 1][0] === bt) arr[arr.length - 1][1] = pct;
+        else arr.push([bt, pct]);
+        while (arr.length && arr[0][0] < now - 24.5 * 3600000) arr.shift();
+      }
+    }
+  }
+
+  S.ts = now;
+  ready = true;
+  setConn(Object.keys(S.errors).length < EXCHANGES.length ? 'live' : 'down');
+  renderAll();
+  checkAlerts();
+}
+
+// ═════════ Formatação (pt-BR) ═════════
+const $ = (id) => document.getElementById(id);
+const priceDigits = (v) => (v >= 10000 ? 0 : v >= 100 ? 2 : v >= 1 ? 4 : 6);
+function fmtPrice(v, currency) {
+  if (!Number.isFinite(v)) return '—';
+  const d = currency === 'KRW' ? 0 : priceDigits(v);
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency, minimumFractionDigits: d, maximumFractionDigits: d }).format(v);
+}
+function fmtPct(v, opts) {
+  if (!Number.isFinite(v)) return '—';
+  const digits = (opts && opts.digits) ?? 2;
+  const s = v.toLocaleString('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+  return (v > 0 ? '+' : '') + s + '%';
+}
+function fmtAge(ms) {
+  if (ms < 1500) return 'agora';
+  if (ms < 60000) return 'há ' + Math.round(ms / 1000) + ' s';
+  if (ms < 3600000) return 'há ' + Math.round(ms / 60000) + ' min';
+  return 'há ' + Math.round(ms / 3600000) + ' h';
+}
+const fmtTime = (t) => new Date(t).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+const fmtDayTime = (t) => new Date(t).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+// ═════════ Taxas / líquido ═════════
+const feeOf = (ex) => ({
+  trading: feesOv[ex.id]?.trading ?? ex.fees.trading,
+  withdrawal: feesOv[ex.id]?.withdrawal ?? ex.fees.withdrawal,
+});
+const refFee = () => feesOv._ref ?? 0.1;
+const netPremium = (ex, g) => (Number.isFinite(g) ? g - feeOf(ex).trading - feeOf(ex).withdrawal - refFee() : null);
+
+function setConn(mode) {
+  const el = $('conn');
+  el.className = 'conn ' + (mode === 'live' ? 'live' : mode === 'down' ? 'down' : '');
+  el.querySelector('.conn-label').textContent = mode === 'live' ? 'ao vivo' : mode === 'down' ? 'sem conexão' : 'coletando…';
+}
+
+// ═════════ Cores das séries ═════════
+const SERIES_COLORS = { mercadobitcoin: '#3987e5', foxbit: '#d95926', upbit: '#c98500', bithumb: '#d55181' };
+const EXTRA_COLORS = ['#199e70', '#9085e9', '#3987e5', '#c98500'];
+let extraIdx = 0;
+const colorOf = (id) => SERIES_COLORS[id] || (SERIES_COLORS[id] = EXTRA_COLORS[extraIdx++ % EXTRA_COLORS.length]);
+
+// ═════════ Tiles ═════════
+function renderTiles() {
+  const rows = EXCHANGES.filter((e) => e.kind === 'local')
+    .map((e) => ({ e, pct: S.premiums[asset]?.[e.id] })).filter((r) => Number.isFinite(r.pct))
+    .sort((a, b) => b.pct - a.pct);
+  const hi = rows[0], lo = rows[rows.length - 1];
+  const fx = S.fx.rates || {};
+  const t = (r) => (r ? { v: fmtPct(r.pct), cls: r.pct >= 0 ? 'pos' : 'neg', sub: r.e.name } : { v: '—', cls: '', sub: 'sem dados' });
+  const h = t(hi), l = t(lo);
+  $('tiles').innerHTML =
+    '<div class="tile"><div class="tile-label">Maior prêmio (' + asset + ')</div><div class="tile-value ' + h.cls + '">' + h.v + '</div><div class="tile-sub">' + h.sub + '</div></div>' +
+    '<div class="tile"><div class="tile-label">Menor prêmio (' + asset + ')</div><div class="tile-value ' + l.cls + '">' + l.v + '</div><div class="tile-sub">' + l.sub + '</div></div>' +
+    '<div class="tile"><div class="tile-label">Referência global (mediana)</div><div class="tile-value">' + fmtPrice(S.reference[asset], 'USD') + '</div><div class="tile-sub">' + asset + '/USD</div></div>' +
+    '<div class="tile"><div class="tile-label">Câmbio (USD →)</div><div class="tile-value">' +
+    (fx.BRL ? 'R$ ' + fx.BRL.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) : '—') +
+    '</div><div class="tile-sub">KRW ' + (fx.KRW ? Math.round(fx.KRW).toLocaleString('pt-BR') : '—') + '</div></div>';
+}
+
+// ═════════ Tabela ═════════
+const rowCache = new Map();
+function makeRow(ex) {
+  const tr = document.createElement('tr');
+  tr.innerHTML =
+    '<td><span class="ex-name"><span class="ex-chip"></span><a href="' + ex.url + '" target="_blank" rel="noopener noreferrer">' + ex.name + '</a></span></td>' +
+    '<td class="market">' + ex.currency + ' · ' + ex.region + '</td>' +
+    '<td class="num price-cell"></td><td class="num price-usd"></td>' +
+    '<td class="num premium-cell"></td><td class="num premium-net col-net"></td>' +
+    '<td class="num age"></td>' +
+    '<td><span class="status"><span class="status-dot"></span><span class="status-text"></span></span></td>';
+  tr.querySelector('.ex-chip').style.background = ex.kind === 'local' ? colorOf(ex.id) : 'var(--muted)';
+  return {
+    tr, lastPrice: null,
+    cells: {
+      price: tr.querySelector('.price-cell'), usd: tr.querySelector('.price-usd'),
+      premium: tr.querySelector('.premium-cell'), net: tr.querySelector('.premium-net'),
+      age: tr.querySelector('.age'), status: tr.querySelector('.status'), statusText: tr.querySelector('.status-text'),
+    },
+  };
+}
+function setPremiumCell(el, pct) {
+  el.textContent = fmtPct(pct);
+  el.className = el.className.replace(/\b(pos|neg|na)\b/g, '').trim();
+  el.classList.add(Number.isFinite(pct) ? (pct >= 0 ? 'pos' : 'neg') : 'na');
+}
+function renderTable() {
+  const now = S.ts;
+  const rates = S.fx.rates || {};
+  $('tableAsset').textContent = asset;
+  $('priceTable').classList.toggle('show-net', showNet);
+  $('netNote').hidden = !showNet;
+
+  const localRows = EXCHANGES.filter((e) => e.kind === 'local')
+    .map((e) => ({ e, pct: S.premiums[asset]?.[e.id] }))
+    .sort((a, b) => (b.pct ?? -Infinity) - (a.pct ?? -Infinity));
+
+  const update = (ex, pct, tbody) => {
+    let rc = rowCache.get(ex.id);
+    if (!rc) { rc = makeRow(ex); rowCache.set(ex.id, rc); }
+    const entry = S.prices[asset]?.[ex.id];
+    const err = S.errors[ex.id];
+    const age = entry ? now - entry.ts : Infinity;
+    const price = entry?.price;
+
+    if (Number.isFinite(price)) {
+      if (rc.lastPrice !== null && price !== rc.lastPrice) {
+        rc.cells.price.classList.remove('flash-up', 'flash-down');
+        void rc.cells.price.offsetWidth;
+        rc.cells.price.classList.add(price > rc.lastPrice ? 'flash-up' : 'flash-down');
+      }
+      rc.lastPrice = price;
+      rc.cells.price.textContent = fmtPrice(price, ex.currency);
+      rc.cells.usd.textContent = rates[ex.currency] ? fmtPrice(price / rates[ex.currency], 'USD') : '—';
+    } else {
+      rc.cells.price.textContent = '—';
+      rc.cells.usd.textContent = '—';
+    }
+
+    setPremiumCell(rc.cells.premium, pct);
+    setPremiumCell(rc.cells.net, ex.kind === 'local' ? netPremium(ex, pct) : NaN);
+    rc.cells.age.textContent = entry ? fmtAge(age) : '—';
+
+    let st = 'ok', label = 'OK', title = '';
+    if (!entry && err) { st = 'off'; label = 'offline'; title = err.message; }
+    else if (!entry) { st = 'warn'; label = 'sem par'; }
+    else if (age > STALE_MS || err) { st = 'warn'; label = 'instável'; title = err?.message || 'preço sem atualização'; }
+    rc.cells.status.className = 'status ' + st;
+    rc.cells.statusText.textContent = label;
+    rc.cells.status.title = title;
+    rc.tr.classList.toggle('stale', st !== 'ok' && !!entry);
+    rc.tr.classList.toggle('alert-row', ex.kind === 'local' && Number.isFinite(pct) && Math.abs(pct) >= alertCfg.threshold);
+    tbody.appendChild(rc.tr);
+  };
+
+  for (const { e, pct } of localRows) update(e, pct, $('tbodyLocal'));
+  for (const e of EXCHANGES.filter((x) => x.kind === 'global')) update(e, S.premiums[asset]?.[e.id], $('tbodyGlobal'));
+}
+
+// ═════════ Gráfico SVG ═════════
+const CHART_H = 320;
+const MARGIN = { l: 54, r: 148, t: 14, b: 26 };
+const MARGIN_NARROW = { l: 48, r: 10, t: 14, b: 26 };
+const RANGE_MS = { '1h': 3600000, '6h': 6 * 3600000, '24h': 24 * 3600000 };
+let chartGeom = null;
+
+function chartSeries() {
+  return EXCHANGES.filter((e) => e.kind === 'local' && !hiddenSeries.has(e.id))
+    .map((e) => {
+      let pts = hist[asset][e.id];
+      const live = S.premiums[asset]?.[e.id];
+      if (Number.isFinite(live) && S.ts) {
+        const last = pts[pts.length - 1];
+        if (!last || S.ts - last[0] > 5000) pts = [...pts, [S.ts, live]];
+      }
+      return { id: e.id, name: e.name, color: colorOf(e.id), pts, bucket: 60000 };
+    })
+    .filter((s) => s.pts.length > 0);
+}
+function niceTicks(min, max, count = 5) {
+  const span = max - min || 1;
+  const mag = 10 ** Math.floor(Math.log10(span / count));
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => span / s <= count) || mag * 10;
+  const ticks = [];
+  for (let v = Math.ceil(min / step) * step; v <= max + 1e-9; v += step) ticks.push(+v.toFixed(6));
+  return ticks;
+}
+function renderChart() {
+  const svg = $('chart');
+  $('chartAsset').textContent = asset;
+  const W = svg.clientWidth || 800;
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + CHART_H);
+  renderLegend();
+
+  const series = chartSeries();
+  const now = Date.now();
+  const t0 = now - RANGE_MS[range], t1 = now;
+  const all = series.flatMap((s) => s.pts.filter((p) => p[0] >= t0).map((p) => p[1]));
+  if (!all.length) {
+    svg.innerHTML = '<text class="chart-empty" x="' + W / 2 + '" y="' + CHART_H / 2 + '" text-anchor="middle">Coletando… o histórico acumula enquanto esta aba está aberta (nada é gravado).</text>';
+    chartGeom = null;
+    return;
+  }
+
+  let vMin = Math.min(0, ...all), vMax = Math.max(0, ...all);
+  const pad = (vMax - vMin || 1) * 0.12;
+  vMin -= pad; vMax += pad;
+  const M = W < 640 ? MARGIN_NARROW : MARGIN;
+  const iw = W - M.l - M.r, ih = CHART_H - M.t - M.b;
+  const x = (t) => M.l + ((t - t0) / (t1 - t0)) * iw;
+  const y = (v) => M.t + (1 - (v - vMin) / (vMax - vMin)) * ih;
+  let g = '';
+
+  for (const v of niceTicks(vMin, vMax)) {
+    const yy = y(v);
+    g += '<line x1="' + M.l + '" x2="' + (W - M.r) + '" y1="' + yy + '" y2="' + yy + '" stroke="var(--grid)" stroke-width="1"/>';
+    g += '<text x="' + (M.l - 8) + '" y="' + (yy + 4) + '" text-anchor="end" fill="var(--muted)" font-size="11">' + fmtPct(v, { digits: Math.abs(v) < 1 ? 2 : 1 }) + '</text>';
+  }
+  if (vMin < 0 && vMax > 0) g += '<line x1="' + M.l + '" x2="' + (W - M.r) + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="var(--baseline)" stroke-width="1.5"/>';
+
+  const xStep = range === '24h' ? 4 * 3600000 : range === '6h' ? 3600000 : 900000;
+  for (let t = Math.ceil(t0 / xStep) * xStep; t <= t1; t += xStep) {
+    g += '<text x="' + x(t) + '" y="' + (CHART_H - 8) + '" text-anchor="middle" fill="var(--muted)" font-size="11">' + fmtTime(t) + '</text>';
+  }
+
+  const labels = [];
+  for (const s of series) {
+    const pts = s.pts.filter((p) => p[0] >= t0 - s.bucket);
+    if (!pts.length) continue;
+    let d = '', prevT = null;
+    for (const [t, v] of pts) {
+      const cmd = prevT === null || t - prevT > s.bucket * 3 ? 'M' : 'L';
+      d += cmd + x(Math.max(t, t0)).toFixed(1) + ',' + y(v).toFixed(1);
+      prevT = t;
+    }
+    g += '<path d="' + d + '" fill="none" stroke="' + s.color + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+    const last = pts[pts.length - 1];
+    labels.push({ y: y(last[1]), color: s.color, text: s.name + ' ' + fmtPct(last[1]) });
+  }
+  if (M.r > 40) {
+    labels.sort((a, b) => a.y - b.y);
+    for (let i = 1; i < labels.length; i++) if (labels[i].y - labels[i - 1].y < 14) labels[i].y = labels[i - 1].y + 14;
+    for (const lb of labels) g += '<text x="' + (W - M.r + 8) + '" y="' + (lb.y + 4) + '" fill="' + lb.color + '" font-size="11.5" font-weight="600">' + lb.text + '</text>';
+  }
+
+  svg.innerHTML = g;
+  chartGeom = { x, y, series, t0, t1, W, iw, M };
+}
+function renderLegend() {
+  $('legend').innerHTML = EXCHANGES.filter((e) => e.kind === 'local')
+    .map((e) => {
+      const live = S.premiums[asset]?.[e.id];
+      return '<button class="legend-item ' + (hiddenSeries.has(e.id) ? 'off' : '') + '" data-id="' + e.id + '" type="button">' +
+        '<span class="ex-chip" style="background:' + colorOf(e.id) + '"></span>' + e.name +
+        ' <span class="lv">' + fmtPct(live) + '</span></button>';
+    }).join('');
+}
+$('legend').addEventListener('click', (ev) => {
+  const btn = ev.target.closest('.legend-item');
+  if (!btn) return;
+  hiddenSeries.has(btn.dataset.id) ? hiddenSeries.delete(btn.dataset.id) : hiddenSeries.add(btn.dataset.id);
+  renderChart();
+});
+
+const chartBox = $('chartBox');
+chartBox.addEventListener('mousemove', (ev) => {
+  const tip = $('chartTip');
+  if (!chartGeom) { tip.hidden = true; return; }
+  const rect = chartBox.getBoundingClientRect();
+  const px = ev.clientX - rect.left;
+  const scale = chartGeom.W / rect.width;
+  const t = chartGeom.t0 + ((px * scale - chartGeom.M.l) / chartGeom.iw) * (chartGeom.t1 - chartGeom.t0);
+  if (t < chartGeom.t0 || t > chartGeom.t1) { tip.hidden = true; drawCrosshair(null); return; }
+  const rows = [];
+  for (const s of chartGeom.series) {
+    let best = null;
+    for (const p of s.pts) if (best === null || Math.abs(p[0] - t) < Math.abs(best[0] - t)) best = p;
+    if (best && Math.abs(best[0] - t) <= s.bucket * 2) rows.push({ s, v: best[1] });
+  }
+  if (!rows.length) { tip.hidden = true; drawCrosshair(null); return; }
+  rows.sort((a, b) => b.v - a.v);
+  tip.innerHTML = '<div class="tip-time">' + fmtDayTime(t) + '</div>' + rows.map(({ s, v }) =>
+    '<div class="tip-row"><span class="tip-name"><span class="ex-chip" style="background:' + s.color + '"></span>' + s.name + '</span><b class="' + (v >= 0 ? 'pos' : 'neg') + '">' + fmtPct(v) + '</b></div>').join('');
+  tip.hidden = false;
+  const tipW = tip.offsetWidth || 160;
+  tip.style.left = Math.min(px + 14, rect.width - tipW - 6) + 'px';
+  tip.style.top = Math.max(ev.clientY - rect.top - 20, 4) + 'px';
+  drawCrosshair(chartGeom.x(t));
+});
+chartBox.addEventListener('mouseleave', () => { $('chartTip').hidden = true; drawCrosshair(null); });
+function drawCrosshair(xPos) {
+  let line = $('chart').querySelector('.crosshair');
+  if (xPos === null) { line?.remove(); return; }
+  if (!line) {
+    line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('class', 'crosshair');
+    line.setAttribute('stroke', 'var(--muted)');
+    line.setAttribute('stroke-dasharray', '3,3');
+    line.setAttribute('y1', MARGIN.t);
+    line.setAttribute('y2', CHART_H - MARGIN.b);
+    $('chart').appendChild(line);
+  }
+  line.setAttribute('x1', xPos);
+  line.setAttribute('x2', xPos);
+}
+
+// ═════════ Alertas (só nesta aba) ═════════
+let audioCtx = null;
+function beep() {
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    o.frequency.value = 880;
+    gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.35);
+    o.connect(gain).connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime + 0.4);
+  } catch {}
+}
+function checkAlerts() {
+  const now = Date.now();
+  for (const a of ASSETS) for (const ex of EXCHANGES) {
+    if (ex.kind !== 'local') continue;
+    const pct = S.premiums[a]?.[ex.id];
+    const entry = S.prices[a]?.[ex.id];
+    if (!Number.isFinite(pct) || !entry || now - entry.ts > STALE_MS) continue;
+    if (Math.abs(pct) < alertCfg.threshold) continue;
+    const key = a + ':' + ex.id;
+    if (now - (lastAlertAt.get(key) || 0) < ALERT_COOLDOWN) continue;
+    lastAlertAt.set(key, now);
+    alertLog.unshift({ t: now, asset: a, ex: ex.name, pct });
+    alertLog = alertLog.slice(0, 50);
+    renderAlertLog();
+    if (alertCfg.sound) beep();
+    if (alertCfg.notify && 'Notification' in window && Notification.permission === 'granted') {
+      try { new Notification('⚡ ' + a + ' em ' + ex.name + ': prêmio ' + fmtPct(pct), { body: 'Acima do limite de ' + alertCfg.threshold + '%.' }); } catch {}
+    }
+  }
+}
+function renderAlertLog() {
+  const el = $('alertLog');
+  if (!alertLog.length) { el.innerHTML = '<li class="empty">Nenhum alerta ainda.</li>'; return; }
+  el.innerHTML = alertLog.map((i) =>
+    '<li><span>' + i.asset + ' · ' + i.ex + ' <b class="' + (i.pct >= 0 ? 'pos' : 'neg') + '">' + fmtPct(i.pct) + '</b></span><span class="when">' + fmtDayTime(i.t) + '</span></li>').join('');
+}
+(() => {
+  const th = $('alertThreshold'), no = $('alertNotify'), so = $('alertSound');
+  th.addEventListener('change', () => { alertCfg.threshold = Math.max(0.1, Number(th.value) || 2); if (ready) renderTable(); });
+  no.addEventListener('change', async () => {
+    if (no.checked && 'Notification' in window && Notification.permission !== 'granted') {
+      try { if ((await Notification.requestPermission()) !== 'granted') no.checked = false; }
+      catch { no.checked = false; }
+    }
+    alertCfg.notify = no.checked;
+  });
+  so.addEventListener('change', () => { alertCfg.sound = so.checked; });
+})();
+
+// ═════════ Modal de taxas ═════════
+function openFees() {
+  $('feesBody').innerHTML = S.exchanges.map((ex) => {
+    const f = feeOf(ex);
+    return '<tr><td>' + ex.name + ' <small style="color:var(--muted)">' + (ex.kind === 'global' ? 'global' : ex.region) + '</small></td>' +
+      '<td class="num"><input type="number" min="0" step="0.05" data-ex="' + ex.id + '" data-k="trading" value="' + f.trading + '"></td>' +
+      '<td class="num"><input type="number" min="0" step="0.05" data-ex="' + ex.id + '" data-k="withdrawal" value="' + f.withdrawal + '"></td></tr>';
+  }).join('');
+  $('refFee').value = refFee();
+  $('feesModal').showModal();
+}
+$('btnFees').addEventListener('click', openFees);
+$('feesClose').addEventListener('click', () => $('feesModal').close());
+$('feesModal').addEventListener('input', (ev) => {
+  const inp = ev.target;
+  if (inp.id === 'refFee') feesOv._ref = Math.max(0, Number(inp.value) || 0);
+  else if (inp.dataset.ex) {
+    feesOv[inp.dataset.ex] = feesOv[inp.dataset.ex] || {};
+    feesOv[inp.dataset.ex][inp.dataset.k] = Math.max(0, Number(inp.value) || 0);
+  }
+  if (ready) renderTable();
+});
+$('feesReset').addEventListener('click', () => {
+  for (const k of Object.keys(feesOv)) delete feesOv[k];
+  openFees();
+  if (ready) renderTable();
+});
+
+// ═════════ Doação ═════════
+$('donateList').innerHTML = DONATE.items.map((i) =>
+  '<li><span class="d-label">' + i.label + '</span><span class="d-value">' + i.value + '</span>' +
+  '<button class="copy-btn" data-copy="' + i.value + '" type="button">copiar</button></li>').join('');
+$('linkProjects').href = DONATE.projectsUrl;
+$('linkProjectsModal').href = DONATE.projectsUrl;
+const openDonate = () => $('donateModal').showModal();
+$('btnDonate').addEventListener('click', openDonate);
+$('btnDonateFooter').addEventListener('click', openDonate);
+$('donateClose').addEventListener('click', () => $('donateModal').close());
+$('donateList').addEventListener('click', async (ev) => {
+  const btn = ev.target.closest('.copy-btn');
+  if (!btn) return;
+  try {
+    await navigator.clipboard.writeText(btn.dataset.copy);
+    btn.textContent = 'copiado ✓';
+    setTimeout(() => (btn.textContent = 'copiar'), 1500);
+  } catch {}
+});
+
+// ═════════ Abas / controles ═════════
+$('assetTabs').innerHTML = ASSETS.map((a) =>
+  '<button class="asset-tab ' + (a === asset ? 'active' : '') + '" data-asset="' + a + '" type="button">' + a + '</button>').join('');
+$('assetTabs').addEventListener('click', (ev) => {
+  const btn = ev.target.closest('.asset-tab');
+  if (!btn || btn.dataset.asset === asset) return;
+  asset = btn.dataset.asset;
+  document.querySelectorAll('.asset-tab').forEach((b) => b.classList.toggle('active', b === btn));
+  if (ready) renderAll();
+});
+document.querySelectorAll('.range-btn').forEach((btn) =>
+  btn.addEventListener('click', () => {
+    if (btn.dataset.range === range) return;
+    range = btn.dataset.range;
+    document.querySelectorAll('.range-btn').forEach((b) => b.classList.toggle('active', b === btn));
+    renderChart();
+  }));
+$('netToggle').addEventListener('change', (ev) => { showNet = ev.target.checked; if (ready) renderTable(); });
+
+function renderAll() {
+  if (!ready) return;
+  renderTiles();
+  renderTable();
+  renderChart();
+  $('fxSource').textContent = S.fx.source || '—';
+}
+
+// ═════════ Início ═════════
+cycle();
+setInterval(cycle, POLL_MS);
+setInterval(() => { if (ready) renderTable(); }, 5000);
+window.addEventListener('resize', () => { if (ready) renderChart(); });
+</script>
+</body>
+</html>

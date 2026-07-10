@@ -41,7 +41,25 @@ Ativos: **BTC, ETH, SOL, XRP, USDT** (edite `ASSETS` em [src/exchanges.js](src/e
 - 💸 **Prêmio líquido** descontando taxas de trading e saque (editáveis por exchange)
 - 🌑 Dark mode estilo terminal de trading, números tabulares, sem "piscadas" bruscas, responsivo
 
-## Rodando
+## Duas formas de usar
+
+### 🔒 Versão anônima — arquivo único, 100% navegador
+
+Abra [premio-cripto-anonimo.html](premio-cripto-anonimo.html) com **duplo clique** — não precisa de
+Node, servidor nem instalação. Feita para não deixar rastro algum:
+
+- **Nada é gravado**: sem cookies, sem localStorage, sem banco, sem servidor — histórico, taxas e
+  alertas vivem só na memória da aba e desaparecem ao fechá-la
+- **CSP embutida**: o navegador só permite que a página se comunique com as APIs públicas listadas
+  no cabeçalho do arquivo — nenhum outro destino, nenhum script externo
+- Requisições saem **sem referrer, sem credenciais e sem cache**
+- O único rastro que resta são requisições HTTPS comuns do seu IP para as exchanges (o mesmo que
+  visitar o site delas) — para ocultar o IP, use VPN ou Tor
+
+Limitações: NovaDAX, Bitso e Bitfinex não permitem chamadas diretas do navegador (CORS), então só
+existem na versão com servidor; e o histórico do gráfico acumula apenas enquanto a aba está aberta.
+
+### ⚙️ Versão com servidor (histórico persistente + todas as exchanges)
 
 Requisitos: **Node.js ≥ 18** (sem nenhuma dependência npm).
 
