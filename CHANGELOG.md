@@ -3,6 +3,15 @@
 Todas as mudanças relevantes do **Prêmio Cripto** são registradas aqui.
 O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/) e o versionamento é [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.6.0] — 2026-07-10
+
+### Adicionado
+- **Prêmio Brasil (BTC e USDT)** em destaque nos tiles: maior prêmio em exchanges BRL vs mediana global USD, com a fórmula explícita *(BRL÷FX − global)÷global*
+- Contador **≥ 5% contínuo (Brasil)**: quanto tempo o prêmio de uma exchange BR ficou sem cair abaixo de 5% (memória da aba; meta visual de 1 h)
+- Preset de alerta **5% (Brasil)** + filtro “só exchanges do Brasil (BRL)”
+- USDT: se nenhuma global cotar USDT/USD, referência global = **1,00 USD** (stablecoin)
+- FAQ “Como calcular o prêmio do Bitcoin (e do USDT) no Brasil?” — alinhado à definição pública de prêmio BR (ferramenta de monitoramento, **não** mercado de previsão)
+
 ## [1.5.2] — 2026-07-10
 
 ### Segurança

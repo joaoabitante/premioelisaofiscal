@@ -18,7 +18,7 @@
 <meta name="referrer" content="no-referrer" />
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: 'self'; connect-src https://api.binance.com https://api.exchange.coinbase.com https://api.kraken.com https://api.bybit.com https://www.okx.com https://api.gemini.com https://api.mercadobitcoin.net https://api.foxbit.com.br https://brasilbitcoin.com.br https://api.bitpreco.com https://api.upbit.com https://api.bithumb.com https://public.bitbank.cc https://public.coindcx.com https://api.btcmarkets.net https://open.er-api.com https://cdn.jsdelivr.net; base-uri 'none'; form-action 'none'" />
 <title>Prêmio Cripto — Arbitragem de Criptomoedas entre Exchanges em Tempo Real</title>
-<meta name="description" content="Compare o preço de Bitcoin e criptomoedas entre Binance, Coinbase, Mercado Bitcoin, Foxbit, Upbit e mais. Prêmio (spread %) em tempo real, calculadora de IR (nacional × exterior) e alertas — grátis, open source e 100% no navegador." />
+<meta name="description" content="Prêmio do Bitcoin e USDT no Brasil vs preço global em tempo real (Mercado Bitcoin, Foxbit e mais). Spread %, alerta 5% contínuo, calculadora de IR e arbitragem — grátis, open source e 100% no navegador." />
 <link rel="canonical" href="https://premio.elisaofiscal.net/" />
 <meta name="robots" content="index, follow" />
 <meta name="theme-color" content="#0d0d0d" />
@@ -124,6 +124,14 @@ main { max-width:1280px; margin:0 auto; padding:18px 20px 40px; display:grid; ga
 .tile-value { font-size:24px; font-weight:650; }
 .tile-sub { color:var(--ink-2); font-size:12.5px; margin-top:2px; }
 .tile-value.pos { color:var(--up); } .tile-value.neg { color:var(--down); }
+.tile.tile-br { border-color:rgba(250,178,25,.4); background:linear-gradient(180deg,rgba(250,178,25,.07),var(--surface) 70%); }
+.tile.tile-br.hit { border-color:rgba(12,163,12,.5); background:linear-gradient(180deg,rgba(12,163,12,.1),var(--surface) 70%); }
+.tile .tile-badge {
+  display:inline-block; font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+  padding:1px 7px; border-radius:999px; margin-bottom:4px;
+  color:var(--warn); background:rgba(250,178,25,.12);
+}
+.tile.tile-br.hit .tile-badge { color:var(--up); background:rgba(12,163,12,.12); }
 @media (max-width:520px){ .tile-value { font-size:19px; } }
 
 .table-wrap { overflow-x:auto; }
@@ -407,9 +415,15 @@ a.d-value:hover { text-decoration:underline; }
       <div class="card-head"><h2>Alertas</h2></div>
       <div class="alert-controls">
         <label>Avisar quando |prêmio| ≥ <input type="number" id="alertThreshold" min="0.1" step="0.1" value="2" /> %</label>
+        <div class="tax-actions" style="margin:0">
+          <button class="btn" type="button" id="alertPreset5" title="Limiar 5% — útil p/ acompanhar prêmio Brasil de BTC/USDT">Preset 5% (Brasil)</button>
+          <button class="btn" type="button" id="alertPreset2" title="Limiar padrão 2%">Preset 2%</button>
+        </div>
         <label class="check"><input type="checkbox" id="alertNotify" /> Notificação do navegador</label>
         <label class="check"><input type="checkbox" id="alertSound" checked /> Som</label>
+        <label class="check"><input type="checkbox" id="alertBrOnly" /> Só exchanges do Brasil (BRL)</label>
       </div>
+      <p class="foot-note">O contador “≥ 5% contínuo” nos tiles é só desta aba (memória). Não é oráculo de mercado de previsão e não resolve apostas.</p>
       <h3>Últimos alertas</h3>
       <ol class="alert-log" id="alertLog"><li class="empty">Nenhum alerta ainda.</li></ol>
     </section>
@@ -525,6 +539,20 @@ a.d-value:hover { text-decoration:underline; }
       o ativo está mais caro na exchange local; negativo, mais barato. Traders de arbitragem
       compram onde está barato e vendem onde está caro antes que o spread feche.</p>
     </details>
+    <details open>
+      <summary>Como calcular o prêmio do Bitcoin (e do USDT) no Brasil?</summary>
+      <p>É o mesmo conceito do “Brazil Bitcoin premium”: quanto o BTC em reais, convertido
+      para dólar pelo câmbio vigente, está acima (ou abaixo) do preço spot global em USD.</p>
+      <p style="margin-top:8px"><b>Fórmula (idêntica à usada no painel):</b><br>
+      <em>Prêmio % = ((preço BTC/BRL ÷ taxa BRL por 1 USD) − preço BTC global USD) ÷ preço BTC global USD × 100</em><br>
+      que é o mesmo que <em>Preço_BRL ÷ (Preço_global_USD × câmbio) − 1</em>.</p>
+      <p style="margin-top:8px">Troque o ativo para <b>USDT</b> e veja o prêmio do “dólar cripto” nas corretoras BR
+      (USDT/BRL vs ~1 USD). Referência global do USDT: mediana USDT/USD das globais; se faltar cotação, usamos 1,00 USD.</p>
+      <p style="margin-top:8px">O tile <b>“≥ 5% contínuo (Brasil)”</b> mostra há quanto tempo o prêmio de uma exchange BR
+      está <b>sem cair abaixo de 5%</b> enquanto esta aba está aberta (útil para quem acompanha distorções
+      prolongadas). <b>Isto é só monitoramento:</b> não é afiliado a mercados de previsão, não resolve
+      apostas e o histórico some ao fechar a aba.</p>
+    </details>
     <details>
       <summary>O que é o kimchi premium?</summary>
       <p>É o nome dado ao prêmio das exchanges sul-coreanas (Upbit, Bithumb), historicamente uma
@@ -562,7 +590,7 @@ a.d-value:hover { text-decoration:underline; }
     Não é recomendação de investimento. Câmbio: <span id="fxSource">—</span>.
   </div>
   <div class="footer-links">
-    <button class="btn-link" id="btnChangelog" type="button">📋 v1.5.2 · atualizações</button>
+    <button class="btn-link" id="btnChangelog" type="button">📋 v1.6.0 · atualizações</button>
     <a href="#" id="linkProjects" target="_blank" rel="noopener noreferrer">Conheça meus outros projetos →</a>
     <button class="btn btn-heart" id="btnDonateFooter" type="button">♥ Fazer uma doação</button>
   </div>
@@ -830,7 +858,7 @@ let range = '6h';
 let showNet = false;
 const hiddenSeries = new Set();
 const feesOv = {};
-const alertCfg = { threshold: 2, notify: false, sound: true };
+const alertCfg = { threshold: 2, notify: false, sound: true, brOnly: false };
 let alertLog = [];
 const lastAlertAt = new Map();
 const ALERT_COOLDOWN = 5 * 60000;
@@ -866,6 +894,8 @@ async function cycle() {
     const globals = EXCHANGES.filter((e) => e.kind === 'global')
       .map((e) => S.prices[a][e.id]).filter((p) => p && now - p.ts <= STALE_MS).map((p) => p.price);
     S.reference[a] = median(globals);
+    // USDT ≈ USD: se nenhuma global cotar USDT/USD, referência = 1 (para prêmio BR do stablecoin)
+    if (a === 'USDT' && !Number.isFinite(S.reference[a])) S.reference[a] = 1;
     const ref = S.reference[a];
     for (const ex of EXCHANGES) {
       const entry = S.prices[a][ex.id];
@@ -884,6 +914,7 @@ async function cycle() {
     }
   }
 
+  updateBrStreaks(now);
   S.ts = now;
   ready = true;
   setConn(Object.keys(S.errors).length < EXCHANGES.length ? 'live' : 'down');
@@ -950,6 +981,62 @@ const EXTRA_COLORS = ['#199e70', '#9085e9', '#3987e5', '#c98500', '#86b6ef', '#e
 let extraIdx = 0;
 const colorOf = (id) => SERIES_COLORS[id] || (SERIES_COLORS[id] = EXTRA_COLORS[extraIdx++ % EXTRA_COLORS.length]);
 
+// ═════════ Prêmio Brasil (BTC/USDT) — streak ≥ 5% contínuo (só memória da aba) ═════════
+// Mesma fórmula do painel = (preço BRL/câmbio − global USD) / global USD
+// NÃO é oráculo de mercado de previsão; só ajuda brasileiros a ver o prêmio ao vivo.
+const BR_STREAK_PCT = 5;
+const BR_STREAK_TARGET_MS = 60 * 60 * 1000; // 1 h
+/** @type {Map<string, { since: number, peak: number }>} key = "ASSET:exId" */
+const brStreak = new Map();
+
+function updateBrStreaks(now) {
+  for (const a of ASSETS) {
+    for (const ex of EXCHANGES) {
+      if (ex.currency !== 'BRL') continue;
+      const key = a + ':' + ex.id;
+      const pct = S.premiums[a]?.[ex.id];
+      const entry = S.prices[a]?.[ex.id];
+      const fresh = entry && now - entry.ts <= STALE_MS;
+      if (!fresh || !Number.isFinite(pct) || pct < BR_STREAK_PCT) {
+        brStreak.delete(key);
+        continue;
+      }
+      const cur = brStreak.get(key);
+      if (!cur) brStreak.set(key, { since: now, peak: pct });
+      else cur.peak = Math.max(cur.peak, pct);
+    }
+  }
+}
+
+function fmtDuration(ms) {
+  if (!(ms >= 0)) return '—';
+  if (ms < 60000) return Math.floor(ms / 1000) + ' s';
+  if (ms < 3600000) return Math.floor(ms / 60000) + ' min ' + Math.floor((ms % 60000) / 1000) + ' s';
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  return h + ' h ' + m + ' min';
+}
+
+function brRowsForAsset(a) {
+  return EXCHANGES.filter((e) => e.currency === 'BRL')
+    .map((e) => ({ e, pct: S.premiums[a]?.[e.id] }))
+    .filter((r) => Number.isFinite(r.pct))
+    .sort((x, y) => y.pct - x.pct);
+}
+
+function bestBrStreak(a) {
+  let best = null;
+  const now = Date.now();
+  for (const [key, v] of brStreak) {
+    if (!key.startsWith(a + ':')) continue;
+    const exId = key.slice(a.length + 1);
+    const ex = EXCHANGES.find((e) => e.id === exId);
+    const dur = now - v.since;
+    if (!best || dur > best.dur) best = { ex, dur, peak: v.peak, since: v.since };
+  }
+  return best;
+}
+
 // ═════════ Tiles ═════════
 function renderTiles() {
   const rows = EXCHANGES.filter((e) => e.kind === 'local')
@@ -963,12 +1050,43 @@ function renderTiles() {
   const win = windowOk
     ? { v: fmtPct(hi.pct - lo.pct, { sign: false }), sub: 'compre ' + lo.e.name + ' → venda ' + hi.e.name }
     : { v: '—', sub: 'aguardando 2+ exchanges' };
+
+  // Brasil (BRL): prêmio BTC ou USDT vs global USD
+  const br = brRowsForAsset(asset);
+  const brHi = br[0];
+  const brSt = bestBrStreak(asset);
+  const brHit1h = brSt && brSt.dur >= BR_STREAK_TARGET_MS;
+  const brGap = brHi ? (BR_STREAK_PCT - brHi.pct) : null;
+  let brDurLabel = 'abaixo de 5% agora';
+  let brDurSub = 'exchange BR · só enquanto a aba está aberta';
+  if (brSt) {
+    brDurLabel = fmtDuration(brSt.dur);
+    brDurSub = (brHit1h ? '✓ ≥ 1 h contínuo · ' : 'meta 1 h · ') +
+      (brSt.ex ? brSt.ex.name : '') + ' · pico ' + fmtPct(brSt.peak);
+  } else if (brHi && brHi.pct >= 0) {
+    brDurSub = 'falta ' + fmtPct(Math.max(0, brGap), { sign: false }) + ' p/ chegar a 5% · ' + brHi.e.name;
+  }
+  const brTitle = asset === 'USDT'
+    ? 'Prêmio USDT Brasil (vs ~USD)'
+    : asset === 'BTC'
+      ? 'Prêmio BTC Brasil (vs global USD)'
+      : 'Prêmio Brasil ' + asset;
+
   $('tiles').innerHTML =
     '<div class="tile tile-hero"><div class="tile-label">Janela de arbitragem (' + asset + ')</div><div class="tile-value">' + win.v + '</div><div class="tile-sub">' + win.sub + '</div></div>' +
-    '<div class="tile"><div class="tile-label">Maior prêmio</div><div class="tile-value ' + h.cls + '">' + h.v + '</div><div class="tile-sub">' + h.sub + '</div></div>' +
-    '<div class="tile"><div class="tile-label">Menor prêmio</div><div class="tile-value ' + l.cls + '">' + l.v + '</div><div class="tile-sub">' + l.sub + '</div></div>' +
-    '<div class="tile"><div class="tile-label">Referência global (mediana)</div><div class="tile-value">' + fmtPrice(S.reference[asset], 'USD') + '</div><div class="tile-sub">' + asset + '/USD</div></div>' +
-    '<div class="tile"><div class="tile-label">Câmbio (USD →)</div><div class="tile-value">' +
+    '<div class="tile tile-br' + (brHit1h ? ' hit' : '') + '"><div class="tile-badge">' + (brHit1h ? '1 h atingida' : 'Brasil · live') + '</div>' +
+    '<div class="tile-label">' + brTitle + '</div><div class="tile-value ' + (brHi ? (brHi.pct >= 0 ? 'pos' : 'neg') : '') + '">' +
+    (brHi ? fmtPct(brHi.pct) : '—') + '</div><div class="tile-sub">' +
+    (brHi ? brHi.e.name + ' · (BRL÷FX − global)÷global' : 'sem cotação BRL') + '</div></div>' +
+    '<div class="tile tile-br' + (brHit1h ? ' hit' : '') + '"><div class="tile-label">≥ 5% contínuo (Brasil)</div><div class="tile-value ' +
+    (brHit1h ? 'pos' : '') + '">' + brDurLabel + '</div><div class="tile-sub">' + brDurSub + '</div></div>' +
+    '<div class="tile"><div class="tile-label">Maior prêmio (todas)</div><div class="tile-value ' + h.cls + '">' + h.v + '</div><div class="tile-sub">' + h.sub + '</div></div>' +
+    '<div class="tile"><div class="tile-label">Referência global (mediana)</div><div class="tile-value">' +
+    (asset === 'USDT' && S.reference[asset] === 1
+      ? '$ 1,00'
+      : fmtPrice(S.reference[asset], 'USD')) +
+    '</div><div class="tile-sub">' + asset + '/USD' + (asset === 'USDT' ? ' · stablecoin' : '') + '</div></div>' +
+    '<div class="tile"><div class="tile-label">Câmbio (USD → BRL)</div><div class="tile-value">' +
     (fx.BRL ? 'R$ ' + fx.BRL.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) : '—') +
     '</div><div class="tile-sub">KRW ' + (fx.KRW ? Math.round(fx.KRW).toLocaleString('pt-BR') : '—') + '</div></div>';
 }
@@ -1254,8 +1372,10 @@ function beep() {
 }
 function checkAlerts() {
   const now = Date.now();
+  const brOnly = !!alertCfg.brOnly;
   for (const a of ASSETS) for (const ex of EXCHANGES) {
     if (ex.kind !== 'local') continue;
+    if (brOnly && ex.currency !== 'BRL') continue;
     const pct = S.premiums[a]?.[ex.id];
     const entry = S.prices[a]?.[ex.id];
     if (!Number.isFinite(pct) || !entry || now - entry.ts > STALE_MS) continue;
@@ -1270,6 +1390,23 @@ function checkAlerts() {
     if (alertCfg.sound) beep();
     if (alertCfg.notify && 'Notification' in window && Notification.permission === 'granted') {
       try { new Notification('⚡ ' + a + ' em ' + ex.name + ': prêmio ' + fmtPct(pct), { body: 'Acima do limite de ' + alertCfg.threshold + '%.' }); } catch {}
+    }
+  }
+  // Aviso especial: prêmio BR ≥ 5% por ≥ 1 h contínuo (BTC/USDT)
+  for (const a of ['BTC', 'USDT']) {
+    const st = bestBrStreak(a);
+    if (!st || st.dur < BR_STREAK_TARGET_MS) continue;
+    const key = 'br1h:' + a + ':' + (st.ex?.id || '');
+    if (now - (lastAlertAt.get(key) || 0) < ALERT_COOLDOWN * 2) continue;
+    lastAlertAt.set(key, now);
+    const msg = a + ' BR ≥ 5% por ' + fmtDuration(st.dur) + (st.ex ? ' · ' + st.ex.name : '');
+    alertLog.unshift({ t: now, asset: a, ex: st.ex?.name || 'Brasil', pct: st.peak });
+    alertLog = alertLog.slice(0, 50);
+    renderAlertLog();
+    showToast({ asset: a, ex: (st.ex?.name || 'BR') + ' (1 h)', pct: st.peak });
+    if (alertCfg.sound) beep();
+    if (alertCfg.notify && 'Notification' in window && Notification.permission === 'granted') {
+      try { new Notification('🇧🇷 ' + msg, { body: 'Prêmio contínuo ≥ 5% nesta aba (monitoramento).' }); } catch {}
     }
   }
 }
@@ -1293,7 +1430,7 @@ function renderAlertLog() {
     '<li><span>' + i.asset + ' · ' + i.ex + ' <b class="' + (i.pct >= 0 ? 'pos' : 'neg') + '">' + fmtPct(i.pct) + '</b></span><span class="when">' + fmtDayTime(i.t) + '</span></li>').join('');
 }
 (() => {
-  const th = $('alertThreshold'), no = $('alertNotify'), so = $('alertSound');
+  const th = $('alertThreshold'), no = $('alertNotify'), so = $('alertSound'), br = $('alertBrOnly');
   th.addEventListener('change', () => { alertCfg.threshold = Math.max(0.1, Number(th.value) || 2); if (ready) renderTable(); });
   no.addEventListener('change', async () => {
     if (no.checked && 'Notification' in window && Notification.permission !== 'granted') {
@@ -1303,6 +1440,17 @@ function renderAlertLog() {
     alertCfg.notify = no.checked;
   });
   so.addEventListener('change', () => { alertCfg.sound = so.checked; });
+  if (br) br.addEventListener('change', () => { alertCfg.brOnly = br.checked; });
+  const setTh = (v) => {
+    alertCfg.threshold = v;
+    th.value = String(v);
+    if (ready) renderTable();
+  };
+  if ($('alertPreset5')) $('alertPreset5').addEventListener('click', () => {
+    setTh(5);
+    if (br) { br.checked = true; alertCfg.brOnly = true; }
+  });
+  if ($('alertPreset2')) $('alertPreset2').addEventListener('click', () => setTh(2));
 })();
 
 // ═════════ Modal de taxas ═════════
@@ -1620,6 +1768,11 @@ $('donateList').addEventListener('click', async (ev) => {
 
 // ═════════ Log de atualizações ═════════
 const CHANGELOG = [
+  { v: '1.6.0', date: '10/07/2026', items: [
+    'Prêmio Brasil BTC/USDT em destaque + contador ≥ 5% contínuo (1 h visual, só nesta aba)',
+    'Preset de alerta 5% Brasil, filtro só BRL, USDT com referência 1 USD se faltar cotação global',
+    'FAQ: como calcular o prêmio do Bitcoin/USDT no Brasil (fórmula = painel; não é mercado de previsão)',
+  ] },
   { v: '1.5.2', date: '10/07/2026', items: [
     'Segurança: .gitignore reforçado; .claude/ fora do Git; SECURITY.md + checklist GitHub em docs/',
   ] },
