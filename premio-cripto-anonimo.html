@@ -63,9 +63,10 @@ main { max-width:1280px; margin:0 auto; padding:18px 20px 40px; display:grid; ga
 .privacy-note { border:1px solid rgba(12,163,12,.3); background:rgba(12,163,12,.06); border-radius:12px; padding:10px 16px; color:var(--ink-2); font-size:13px; }
 .privacy-note b { color:var(--up); }
 
-.tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+.tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; }
 @media (max-width:900px){ .tiles { grid-template-columns:repeat(2,1fr); } }
 .tile { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:13px 16px; min-width:0; }
+.tile.tile-hero { border-color:rgba(57,135,229,.45); background:linear-gradient(180deg,rgba(57,135,229,.08),var(--surface) 70%); }
 .tile-label { color:var(--muted); font-size:12px; margin-bottom:4px; }
 .tile-value { font-size:24px; font-weight:650; }
 .tile-sub { color:var(--ink-2); font-size:12.5px; margin-top:2px; }
@@ -89,6 +90,12 @@ td.market { color:var(--muted); font-size:12.5px; }
 .premium-cell { font-weight:700; font-size:15.5px; }
 .pos { color:var(--up); } .neg { color:var(--down); } .na { color:var(--muted); font-weight:400; }
 td.age { color:var(--muted); font-size:12.5px; }
+.pill { display:inline-flex; align-items:center; gap:4px; padding:2px 9px; border-radius:999px; font-weight:700; font-size:13.5px; line-height:1.5; }
+.pill.pos { color:var(--up); background:rgba(12,163,12,.13); }
+.pill.neg { color:var(--down); background:rgba(230,103,103,.13); }
+.pill .arrow { font-size:10px; }
+.spark { display:block; margin-left:auto; opacity:.9; }
+tbody tr:not(.group-row):hover td { background:rgba(255,255,255,.025); }
 .flash-up { animation:flashUp .9s ease-out; } .flash-down { animation:flashDown .9s ease-out; }
 @keyframes flashUp { 0%{color:var(--up);} 100%{color:inherit;} }
 @keyframes flashDown { 0%{color:var(--down);} 100%{color:inherit;} }
@@ -149,12 +156,35 @@ table.show-net .col-net { display:table-cell; }
 .copy-btn { background:var(--surface-2); border:1px solid var(--border); color:var(--ink-2); border-radius:6px; padding:4px 9px; cursor:pointer; font-size:12px; }
 .copy-btn:hover { color:var(--ink); }
 
+.poll-progress { position:absolute; left:0; right:0; bottom:-1px; height:2px; overflow:hidden; }
+.poll-progress > div { height:100%; width:100%; transform:scaleX(0); transform-origin:left; background:linear-gradient(90deg,var(--accent),rgba(57,135,229,.4)); }
+
+.toasts { position:fixed; top:68px; right:16px; z-index:50; display:grid; gap:8px; max-width:min(340px,calc(100vw - 32px)); }
+.toast { background:var(--surface-2); border:1px solid rgba(250,178,25,.5); border-left:3px solid var(--warn); border-radius:10px; padding:10px 14px; font-size:13.5px; color:var(--ink); box-shadow:0 8px 24px rgba(0,0,0,.5); opacity:0; transform:translateX(12px); transition:opacity .3s,transform .3s; }
+.toast.show { opacity:1; transform:translateX(0); }
+.toast small { display:block; color:var(--muted); margin-top:2px; }
+
+.skel { position:relative; overflow:hidden; background:var(--surface-2); border-radius:6px; color:transparent !important; }
+.skel::after { content:""; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,.05),transparent); animation:shimmer 1.4s infinite; }
+@keyframes shimmer { 0%{transform:translateX(-100%);} 100%{transform:translateX(100%);} }
+.skel-tile { min-height:88px; }
+
+:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+@media (prefers-reduced-motion:reduce){
+  .flash-up,.flash-down { animation:none; }
+  .skel::after { animation:none; }
+  .toast { transition:none; }
+  .poll-progress > div { transition:none !important; }
+}
+
 @media (max-width:640px){
   .topbar { padding:10px 12px; }
   main { padding:12px 10px 30px; }
   .card { padding:12px; }
   th,td { padding:8px 8px; }
   .top-actions { margin-left:0; }
+  td.market, th.th-market { display:none; }
+  .toasts { top:auto; bottom:12px; }
 }
 </style>
 </head>
@@ -174,7 +204,10 @@ table.show-net .col-net { display:table-cell; }
     <button class="btn" id="btnFees" type="button">Taxas</button>
     <button class="btn btn-heart" id="btnDonate" type="button">♥ Apoiar</button>
   </div>
+  <div class="poll-progress" aria-hidden="true"><div id="pollBar"></div></div>
 </header>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
 
 <main>
   <div class="privacy-note">
@@ -185,7 +218,13 @@ table.show-net .col-net { display:table-cell; }
     IP — para ocultá-lo, use VPN ou Tor.
   </div>
 
-  <section class="tiles" id="tiles" aria-label="Resumo"></section>
+  <section class="tiles" id="tiles" aria-label="Resumo">
+    <div class="tile skel skel-tile"></div>
+    <div class="tile skel skel-tile"></div>
+    <div class="tile skel skel-tile"></div>
+    <div class="tile skel skel-tile"></div>
+    <div class="tile skel skel-tile"></div>
+  </section>
 
   <section class="card table-card">
     <div class="card-head">
@@ -196,17 +235,23 @@ table.show-net .col-net { display:table-cell; }
       <table id="priceTable">
         <thead>
           <tr>
-            <th>Exchange</th><th>Mercado</th>
+            <th>Exchange</th><th class="th-market">Mercado</th>
             <th class="num">Preço local</th><th class="num">Preço em USD</th>
             <th class="num">Prêmio</th><th class="num col-net">Líquido</th>
+            <th class="num" title="Prêmio nas últimas 3 horas (acumulado nesta aba)">Tendência 3 h</th>
             <th class="num">Atualizado</th><th>Status</th>
           </tr>
         </thead>
         <tbody id="tbodyLocal">
-          <tr class="group-row"><td colspan="8">Exchanges locais / regionais — ordenadas pelo maior prêmio</td></tr>
+          <tr class="group-row"><td colspan="9">Exchanges locais / regionais — ordenadas pelo maior prêmio</td></tr>
+          <tr class="skel-row"><td colspan="9"><div class="skel" style="height:18px"></div></td></tr>
+          <tr class="skel-row"><td colspan="9"><div class="skel" style="height:18px"></div></td></tr>
+          <tr class="skel-row"><td colspan="9"><div class="skel" style="height:18px"></div></td></tr>
         </tbody>
         <tbody id="tbodyGlobal">
-          <tr class="group-row"><td colspan="8">Exchanges globais (referência = mediana em USD) — coluna “Prêmio” mostra o desvio vs. mediana</td></tr>
+          <tr class="group-row"><td colspan="9">Exchanges globais (referência = mediana em USD) — coluna “Prêmio” mostra o desvio vs. mediana</td></tr>
+          <tr class="skel-row"><td colspan="9"><div class="skel" style="height:18px"></div></td></tr>
+          <tr class="skel-row"><td colspan="9"><div class="skel" style="height:18px"></div></td></tr>
         </tbody>
       </table>
     </div>
@@ -490,8 +535,20 @@ async function cycle() {
   S.ts = now;
   ready = true;
   setConn(Object.keys(S.errors).length < EXCHANGES.length ? 'live' : 'down');
+  restartPollBar();
   renderAll();
   checkAlerts();
+}
+
+// barra fina no topo indicando o próximo ciclo de coleta
+function restartPollBar() {
+  const bar = document.getElementById('pollBar');
+  if (!bar) return;
+  bar.style.transition = 'none';
+  bar.style.transform = 'scaleX(1)';
+  void bar.offsetWidth;
+  bar.style.transition = 'transform ' + POLL_MS + 'ms linear';
+  bar.style.transform = 'scaleX(0)';
 }
 
 // ═════════ Formatação (pt-BR) ═════════
@@ -505,8 +562,9 @@ function fmtPrice(v, currency) {
 function fmtPct(v, opts) {
   if (!Number.isFinite(v)) return '—';
   const digits = (opts && opts.digits) ?? 2;
+  const sign = (opts && opts.sign) !== false;
   const s = v.toLocaleString('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits });
-  return (v > 0 ? '+' : '') + s + '%';
+  return (sign && v > 0 ? '+' : '') + s + '%';
 }
 function fmtAge(ms) {
   if (ms < 1500) return 'agora';
@@ -546,9 +604,14 @@ function renderTiles() {
   const fx = S.fx.rates || {};
   const t = (r) => (r ? { v: fmtPct(r.pct), cls: r.pct >= 0 ? 'pos' : 'neg', sub: r.e.name } : { v: '—', cls: '', sub: 'sem dados' });
   const h = t(hi), l = t(lo);
+  const windowOk = hi && lo && hi.e.id !== lo.e.id;
+  const win = windowOk
+    ? { v: fmtPct(hi.pct - lo.pct, { sign: false }), sub: 'compre ' + lo.e.name + ' → venda ' + hi.e.name }
+    : { v: '—', sub: 'aguardando 2+ exchanges' };
   $('tiles').innerHTML =
-    '<div class="tile"><div class="tile-label">Maior prêmio (' + asset + ')</div><div class="tile-value ' + h.cls + '">' + h.v + '</div><div class="tile-sub">' + h.sub + '</div></div>' +
-    '<div class="tile"><div class="tile-label">Menor prêmio (' + asset + ')</div><div class="tile-value ' + l.cls + '">' + l.v + '</div><div class="tile-sub">' + l.sub + '</div></div>' +
+    '<div class="tile tile-hero"><div class="tile-label">Janela de arbitragem (' + asset + ')</div><div class="tile-value">' + win.v + '</div><div class="tile-sub">' + win.sub + '</div></div>' +
+    '<div class="tile"><div class="tile-label">Maior prêmio</div><div class="tile-value ' + h.cls + '">' + h.v + '</div><div class="tile-sub">' + h.sub + '</div></div>' +
+    '<div class="tile"><div class="tile-label">Menor prêmio</div><div class="tile-value ' + l.cls + '">' + l.v + '</div><div class="tile-sub">' + l.sub + '</div></div>' +
     '<div class="tile"><div class="tile-label">Referência global (mediana)</div><div class="tile-value">' + fmtPrice(S.reference[asset], 'USD') + '</div><div class="tile-sub">' + asset + '/USD</div></div>' +
     '<div class="tile"><div class="tile-label">Câmbio (USD →)</div><div class="tile-value">' +
     (fx.BRL ? 'R$ ' + fx.BRL.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) : '—') +
@@ -564,6 +627,7 @@ function makeRow(ex) {
     '<td class="market">' + ex.currency + ' · ' + ex.region + '</td>' +
     '<td class="num price-cell"></td><td class="num price-usd"></td>' +
     '<td class="num premium-cell"></td><td class="num premium-net col-net"></td>' +
+    '<td class="num spark-cell"></td>' +
     '<td class="num age"></td>' +
     '<td><span class="status"><span class="status-dot"></span><span class="status-text"></span></span></td>';
   tr.querySelector('.ex-chip').style.background = ex.kind === 'local' ? colorOf(ex.id) : 'var(--muted)';
@@ -572,14 +636,32 @@ function makeRow(ex) {
     cells: {
       price: tr.querySelector('.price-cell'), usd: tr.querySelector('.price-usd'),
       premium: tr.querySelector('.premium-cell'), net: tr.querySelector('.premium-net'),
+      spark: tr.querySelector('.spark-cell'),
       age: tr.querySelector('.age'), status: tr.querySelector('.status'), statusText: tr.querySelector('.status-text'),
     },
   };
 }
 function setPremiumCell(el, pct) {
-  el.textContent = fmtPct(pct);
-  el.className = el.className.replace(/\b(pos|neg|na)\b/g, '').trim();
-  el.classList.add(Number.isFinite(pct) ? (pct >= 0 ? 'pos' : 'neg') : 'na');
+  if (!Number.isFinite(pct)) { el.innerHTML = '<span class="na">—</span>'; return; }
+  const pos = pct >= 0;
+  el.innerHTML = '<span class="pill ' + (pos ? 'pos' : 'neg') + '"><span class="arrow">' + (pos ? '▲' : '▼') + '</span>' + fmtPct(pct) + '</span>';
+}
+// mini-gráfico de tendência (últimas 3 h acumuladas nesta aba)
+function sparkline(points, w = 88, h = 26) {
+  const cutoff = Date.now() - 3 * 3600000;
+  const pts = (points || []).filter((p) => p[0] >= cutoff);
+  if (pts.length < 2) return '<span class="na">—</span>';
+  const vs = pts.map((p) => p[1]);
+  let min = Math.min(...vs, 0), max = Math.max(...vs, 0);
+  if (max - min < 1e-9) { max += 0.01; min -= 0.01; }
+  const x = (i) => 2 + (i / (pts.length - 1)) * (w - 4);
+  const y = (v) => h - 3 - ((v - min) / (max - min)) * (h - 6);
+  let d = '';
+  for (let i = 0; i < pts.length; i++) d += (i ? 'L' : 'M') + x(i).toFixed(1) + ',' + y(pts[i][1]).toFixed(1);
+  const color = vs[vs.length - 1] >= 0 ? 'var(--up)' : 'var(--down)';
+  return '<svg class="spark" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true">' +
+    '<line x1="2" x2="' + (w - 2) + '" y1="' + y(0).toFixed(1) + '" y2="' + y(0).toFixed(1) + '" stroke="var(--grid)" stroke-width="1"/>' +
+    '<path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linejoin="round"/></svg>';
 }
 function renderTable() {
   const now = S.ts;
@@ -616,6 +698,7 @@ function renderTable() {
 
     setPremiumCell(rc.cells.premium, pct);
     setPremiumCell(rc.cells.net, ex.kind === 'local' ? netPremium(ex, pct) : NaN);
+    rc.cells.spark.innerHTML = ex.kind === 'local' ? sparkline(hist[asset][ex.id]) : '<span class="na">—</span>';
     rc.cells.age.textContent = entry ? fmtAge(age) : '—';
 
     let st = 'ok', label = 'OK', title = '';
@@ -630,6 +713,7 @@ function renderTable() {
     tbody.appendChild(rc.tr);
   };
 
+  document.querySelectorAll('.skel-row').forEach((r) => r.remove());
   for (const { e, pct } of localRows) update(e, pct, $('tbodyLocal'));
   for (const e of EXCHANGES.filter((x) => x.kind === 'global')) update(e, S.premiums[asset]?.[e.id], $('tbodyGlobal'));
 }
@@ -808,12 +892,26 @@ function checkAlerts() {
     alertLog.unshift({ t: now, asset: a, ex: ex.name, pct });
     alertLog = alertLog.slice(0, 50);
     renderAlertLog();
+    showToast({ asset: a, ex: ex.name, pct });
     if (alertCfg.sound) beep();
     if (alertCfg.notify && 'Notification' in window && Notification.permission === 'granted') {
       try { new Notification('⚡ ' + a + ' em ' + ex.name + ': prêmio ' + fmtPct(pct), { body: 'Acima do limite de ' + alertCfg.threshold + '%.' }); } catch {}
     }
   }
 }
+// toast deslizante — some sozinho depois de 6 s
+function showToast(item) {
+  const box = $('toasts');
+  if (!box) return;
+  const div = document.createElement('div');
+  div.className = 'toast';
+  div.innerHTML = '⚡ <b>' + item.asset + '</b> em ' + item.ex + ': prêmio <b class="' + (item.pct >= 0 ? 'pos' : 'neg') + '">' + fmtPct(item.pct) + '</b>' +
+    '<small>acima do limite de ' + alertCfg.threshold + '%</small>';
+  box.appendChild(div);
+  requestAnimationFrame(() => div.classList.add('show'));
+  setTimeout(() => { div.classList.remove('show'); setTimeout(() => div.remove(), 350); }, 6000);
+}
+
 function renderAlertLog() {
   const el = $('alertLog');
   if (!alertLog.length) { el.innerHTML = '<li class="empty">Nenhum alerta ainda.</li>'; return; }

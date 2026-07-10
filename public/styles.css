@@ -112,8 +112,9 @@ main { max-width: 1280px; margin: 0 auto; padding: 18px 20px 40px; display: grid
 .foot-note code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
 
 /* ── Tiles ──────────────────────────────────────────────────────────────── */
-.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
 @media (max-width: 900px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
+.tile.tile-hero { border-color: rgba(57, 135, 229, 0.45); background: linear-gradient(180deg, rgba(57, 135, 229, 0.08), var(--surface) 70%); }
 
 .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 13px 16px; min-width: 0; }
 .tile-label { color: var(--muted); font-size: 12px; margin-bottom: 4px; }
@@ -155,6 +156,15 @@ td.market { color: var(--muted); font-size: 12.5px; }
 .neg { color: var(--down); }
 .na { color: var(--muted); font-weight: 400; }
 td.age { color: var(--muted); font-size: 12.5px; }
+
+.pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px; font-weight: 700; font-size: 13.5px; line-height: 1.5; }
+.pill.pos { color: var(--up); background: rgba(12, 163, 12, 0.13); }
+.pill.neg { color: var(--down); background: rgba(230, 103, 103, 0.13); }
+.pill .arrow { font-size: 10px; }
+
+.spark { display: block; margin-left: auto; opacity: 0.9; }
+
+tbody tr:not(.group-row):hover td { background: rgba(255, 255, 255, 0.025); }
 
 .flash-up { animation: flashUp 0.9s ease-out; }
 .flash-down { animation: flashDown 0.9s ease-out; }
@@ -259,10 +269,53 @@ table.show-net .col-net { display: table-cell; }
 .copy-btn { background: var(--surface-2); border: 1px solid var(--border); color: var(--ink-2); border-radius: 6px; padding: 4px 9px; cursor: pointer; font-size: 12px; }
 .copy-btn:hover { color: var(--ink); }
 
+/* ── Barra de progresso do ciclo de coleta ──────────────────────────────── */
+.poll-progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: transparent; overflow: hidden; }
+.poll-progress > div { height: 100%; width: 100%; transform: scaleX(0); transform-origin: left; background: linear-gradient(90deg, var(--accent), rgba(57, 135, 229, 0.4)); }
+
+/* ── Toasts de alerta ───────────────────────────────────────────────────── */
+.toasts { position: fixed; top: 68px; right: 16px; z-index: 50; display: grid; gap: 8px; max-width: min(340px, calc(100vw - 32px)); }
+.toast {
+  background: var(--surface-2);
+  border: 1px solid rgba(250, 178, 25, 0.5);
+  border-left: 3px solid var(--warn);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  color: var(--ink);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transform: translateX(12px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.toast.show { opacity: 1; transform: translateX(0); }
+.toast small { display: block; color: var(--muted); margin-top: 2px; }
+
+/* ── Skeleton (primeiro carregamento) ───────────────────────────────────── */
+.skel { position: relative; overflow: hidden; background: var(--surface-2); border-radius: 6px; color: transparent !important; }
+.skel::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+.skel-tile { min-height: 88px; }
+
+/* ── Acessibilidade ─────────────────────────────────────────────────────── */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  .flash-up, .flash-down { animation: none; }
+  .skel::after { animation: none; }
+  .toast { transition: none; }
+  .poll-progress > div { transition: none !important; }
+}
+
 @media (max-width: 640px) {
   .topbar { padding: 10px 12px; }
   main { padding: 12px 10px 30px; }
   .card { padding: 12px; }
   th, td { padding: 8px 8px; }
   .top-actions { margin-left: 0; }
+  td.market, th.th-market { display: none; }
+  .toasts { top: auto; bottom: 12px; }
 }

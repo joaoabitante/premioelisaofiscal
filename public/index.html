@@ -23,10 +23,19 @@
       <button class="btn" id="btnFees" type="button">Taxas</button>
       <button class="btn btn-heart" id="btnDonate" type="button">♥ Apoiar</button>
     </div>
+    <div class="poll-progress" aria-hidden="true"><div id="pollBar"></div></div>
   </header>
 
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
   <main>
-    <section class="tiles" id="tiles" aria-label="Resumo"></section>
+    <section class="tiles" id="tiles" aria-label="Resumo">
+      <div class="tile skel skel-tile"></div>
+      <div class="tile skel skel-tile"></div>
+      <div class="tile skel skel-tile"></div>
+      <div class="tile skel skel-tile"></div>
+      <div class="tile skel skel-tile"></div>
+    </section>
 
     <section class="card table-card">
       <div class="card-head">
@@ -41,20 +50,26 @@
           <thead>
             <tr>
               <th>Exchange</th>
-              <th>Mercado</th>
+              <th class="th-market">Mercado</th>
               <th class="num">Preço local</th>
               <th class="num">Preço em USD</th>
               <th class="num th-premium">Prêmio</th>
               <th class="num col-net">Líquido</th>
+              <th class="num" title="Prêmio nas últimas 3 horas">Tendência 3 h</th>
               <th class="num">Atualizado</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody id="tbodyLocal">
-            <tr class="group-row"><td colspan="8">Exchanges locais / regionais — ordenadas pelo maior prêmio</td></tr>
+            <tr class="group-row"><td colspan="9">Exchanges locais / regionais — ordenadas pelo maior prêmio</td></tr>
+            <tr class="skel-row"><td colspan="9"><div class="skel" style="height:18px"></div></td></tr>
+            <tr class="skel-row"><td colspan="9"><div class="skel" style="height:18px"></div></td></tr>
+            <tr class="skel-row"><td colspan="9"><div class="skel" style="height:18px"></div></td></tr>
           </tbody>
           <tbody id="tbodyGlobal">
-            <tr class="group-row"><td colspan="8">Exchanges globais (referência = mediana em USD) — coluna “Prêmio” mostra o desvio vs. mediana</td></tr>
+            <tr class="group-row"><td colspan="9">Exchanges globais (referência = mediana em USD) — coluna “Prêmio” mostra o desvio vs. mediana</td></tr>
+            <tr class="skel-row"><td colspan="9"><div class="skel" style="height:18px"></div></td></tr>
+            <tr class="skel-row"><td colspan="9"><div class="skel" style="height:18px"></div></td></tr>
           </tbody>
         </table>
       </div>

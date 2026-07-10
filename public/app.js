@@ -103,8 +103,20 @@ function setConn(mode) {
 
 function onState(state) {
   S = state;
+  restartPollBar();
   renderAll();
   checkAlerts();
+}
+
+// barra fina no topo indicando o próximo ciclo de coleta
+function restartPollBar() {
+  const bar = $('pollBar');
+  if (!bar) return;
+  bar.style.transition = 'none';
+  bar.style.transform = 'scaleX(1)';
+  void bar.offsetWidth;
+  bar.style.transition = `transform ${S.pollMs || 6000}ms linear`;
+  bar.style.transform = 'scaleX(0)';
 }
 
 function connect() {
@@ -133,6 +145,7 @@ async function fetchHistory() {
     const r = await fetch(`/api/history?asset=${asset}&range=${range}`);
     history = await r.json();
     renderChart();
+    if (S) renderTable(); // sparklines da tabela usam o mesmo histórico
   } catch { /* mantém o gráfico anterior */ }
 }
 
@@ -152,10 +165,18 @@ function renderTiles() {
     : { v: '—', cls: '', sub: 'sem dados' };
   const h = pctTile(hi), l = pctTile(lo);
 
+  // janela de arbitragem: comprar na local mais barata, vender na mais cara
+  const windowOk = hi && lo && hi.e.id !== lo.e.id;
+  const win = windowOk
+    ? { v: fmtPct(hi.pct - lo.pct, { sign: false }), sub: `compre ${lo.e.name} → venda ${hi.e.name}` }
+    : { v: '—', sub: 'aguardando 2+ exchanges' };
+
   $('tiles').innerHTML = `
-    <div class="tile"><div class="tile-label">Maior prêmio (${asset})</div>
+    <div class="tile tile-hero"><div class="tile-label">Janela de arbitragem (${asset})</div>
+      <div class="tile-value">${win.v}</div><div class="tile-sub">${win.sub}</div></div>
+    <div class="tile"><div class="tile-label">Maior prêmio</div>
       <div class="tile-value ${h.cls}">${h.v}</div><div class="tile-sub">${h.sub}</div></div>
-    <div class="tile"><div class="tile-label">Menor prêmio (${asset})</div>
+    <div class="tile"><div class="tile-label">Menor prêmio</div>
       <div class="tile-value ${l.cls}">${l.v}</div><div class="tile-sub">${l.sub}</div></div>
     <div class="tile"><div class="tile-label">Referência global (mediana)</div>
       <div class="tile-value">${fmtPrice(ref, 'USD')}</div><div class="tile-sub">${asset}/USD</div></div>
@@ -176,6 +197,7 @@ function makeRow(ex) {
     <td class="num price-usd"></td>
     <td class="num premium-cell"></td>
     <td class="num premium-net col-net"></td>
+    <td class="num spark-cell"></td>
     <td class="num age"></td>
     <td><span class="status"><span class="status-dot"></span><span class="status-text"></span></span></td>`;
   tr.querySelector('.ex-chip').style.background = ex.kind === 'local' ? colorOf(ex.id) : 'var(--muted)';
@@ -184,6 +206,7 @@ function makeRow(ex) {
     usd: tr.querySelector('.price-usd'),
     premium: tr.querySelector('.premium-cell'),
     net: tr.querySelector('.premium-net'),
+    spark: tr.querySelector('.spark-cell'),
     age: tr.querySelector('.age'),
     status: tr.querySelector('.status'),
     statusText: tr.querySelector('.status-text'),
@@ -192,9 +215,31 @@ function makeRow(ex) {
 }
 
 function setPremiumCell(el, pct) {
-  el.textContent = fmtPct(pct);
-  el.className = el.className.replace(/\b(pos|neg|na)\b/g, '').trim();
-  el.classList.add(Number.isFinite(pct) ? (pct >= 0 ? 'pos' : 'neg') : 'na');
+  if (!Number.isFinite(pct)) {
+    el.innerHTML = '<span class="na">—</span>';
+    return;
+  }
+  const pos = pct >= 0;
+  el.innerHTML = `<span class="pill ${pos ? 'pos' : 'neg'}"><span class="arrow">${pos ? '▲' : '▼'}</span>${fmtPct(pct)}</span>`;
+}
+
+// mini-gráfico de tendência do prêmio (últimas 3 h) para a linha da tabela
+function sparkline(points, w = 88, h = 26) {
+  const cutoff = Date.now() - 3 * 3_600_000;
+  const pts = (points || []).filter((p) => p[0] >= cutoff);
+  if (pts.length < 2) return '<span class="na">—</span>';
+  const vs = pts.map((p) => p[1]);
+  let min = Math.min(...vs, 0), max = Math.max(...vs, 0);
+  if (max - min < 1e-9) { max += 0.01; min -= 0.01; }
+  const x = (i) => 2 + (i / (pts.length - 1)) * (w - 4);
+  const y = (v) => h - 3 - ((v - min) / (max - min)) * (h - 6);
+  let d = '';
+  for (let i = 0; i < pts.length; i++) d += `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(pts[i][1]).toFixed(1)}`;
+  const last = vs[vs.length - 1];
+  const color = last >= 0 ? 'var(--up)' : 'var(--down)';
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">
+    <line x1="2" x2="${w - 2}" y1="${y(0).toFixed(1)}" y2="${y(0).toFixed(1)}" stroke="var(--grid)" stroke-width="1"/>
+    <path d="${d}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
 }
 
 function renderTable() {
@@ -237,6 +282,11 @@ function renderTable() {
 
     setPremiumCell(rc.cells.premium, pct);
     setPremiumCell(rc.cells.net, ex.kind === 'local' ? netPremium(ex, pct) : NaN);
+    if (ex.kind === 'local' && history && history.asset === asset) {
+      rc.cells.spark.innerHTML = sparkline(history.series.find((s) => s.id === ex.id)?.points);
+    } else if (ex.kind === 'global') {
+      rc.cells.spark.innerHTML = '<span class="na">—</span>';
+    }
     rc.cells.age.textContent = entry ? fmtAge(age) : '—';
 
     // status: OK / instável (preço velho ou erro com preço antigo) / offline
@@ -255,6 +305,7 @@ function renderTable() {
   };
 
   const tbL = $('tbodyLocal'), tbG = $('tbodyGlobal');
+  document.querySelectorAll('.skel-row').forEach((r) => r.remove());
   for (const { e, pct } of localRows) update(e, pct, tbL);
   for (const e of globals) update(e, S.premiums[asset]?.[e.id], tbG);
 }
@@ -484,12 +535,29 @@ function fireAlert(item) {
   alertLog = alertLog.slice(0, 50);
   store.set('alertLog', alertLog);
   renderAlertLog();
+  showToast(item);
   if (alertCfg.sound) beep();
   if (alertCfg.notify && 'Notification' in window && Notification.permission === 'granted') {
     new Notification(`⚡ ${item.asset} em ${item.ex}: prêmio ${fmtPct(item.pct)}`, {
       body: `Acima do limite de ${alertCfg.threshold}% — confira o painel.`,
     });
   }
+}
+
+// toast deslizante — some sozinho depois de 6 s
+function showToast(item) {
+  const box = $('toasts');
+  if (!box) return;
+  const div = document.createElement('div');
+  div.className = 'toast';
+  div.innerHTML = `⚡ <b>${item.asset}</b> em ${item.ex}: prêmio <b class="${item.pct >= 0 ? 'pos' : 'neg'}">${fmtPct(item.pct)}</b>
+    <small>acima do limite de ${alertCfg.threshold}%</small>`;
+  box.appendChild(div);
+  requestAnimationFrame(() => div.classList.add('show'));
+  setTimeout(() => {
+    div.classList.remove('show');
+    setTimeout(() => div.remove(), 350);
+  }, 6000);
 }
 
 function renderAlertLog() {
