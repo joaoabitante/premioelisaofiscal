@@ -16,8 +16,43 @@
     (o mesmo que visitar o site delas). Para ocultar o IP, use VPN/Tor.
   ═══════════════════════════════════════════════════ -->
 <meta name="referrer" content="no-referrer" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src https://api.binance.com https://api.exchange.coinbase.com https://api.kraken.com https://api.bybit.com https://www.okx.com https://api.mercadobitcoin.net https://api.foxbit.com.br https://api.upbit.com https://api.bithumb.com https://open.er-api.com https://cdn.jsdelivr.net; base-uri 'none'; form-action 'none'" />
-<title>Prêmio Cripto — anônimo, 100% navegador</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: 'self'; connect-src https://api.binance.com https://api.exchange.coinbase.com https://api.kraken.com https://api.bybit.com https://www.okx.com https://api.mercadobitcoin.net https://api.foxbit.com.br https://api.upbit.com https://api.bithumb.com https://open.er-api.com https://cdn.jsdelivr.net; base-uri 'none'; form-action 'none'" />
+<title>Prêmio Cripto — Arbitragem de Criptomoedas entre Exchanges em Tempo Real</title>
+<meta name="description" content="Compare o preço de Bitcoin e criptomoedas entre Binance, Coinbase, Mercado Bitcoin, Foxbit, Upbit e mais. Prêmio (spread %) em tempo real para arbitragem, kimchi premium, alertas e histórico — grátis, open source e 100% no navegador." />
+<link rel="canonical" href="https://premio.elisaofiscal.net/" />
+<meta name="robots" content="index, follow" />
+<meta name="theme-color" content="#0d0d0d" />
+<link rel="icon" type="image/png" href="/favicon.png" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Prêmio Cripto" />
+<meta property="og:title" content="Prêmio Cripto — arbitragem entre exchanges em tempo real" />
+<meta property="og:description" content="Spread % de BTC, ETH, SOL, XRP e USDT entre exchanges globais e locais (Brasil e Coreia), ao vivo. Kimchi premium, alertas e prêmio líquido com taxas." />
+<meta property="og:url" content="https://premio.elisaofiscal.net/" />
+<meta property="og:image" content="https://premio.elisaofiscal.net/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:locale" content="pt_BR" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Prêmio Cripto — arbitragem entre exchanges em tempo real" />
+<meta name="twitter:description" content="Spread % de cripto entre Binance, Mercado Bitcoin, Upbit e mais — ao vivo, grátis e open source." />
+<meta name="twitter:image" content="https://premio.elisaofiscal.net/og.png" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Prêmio Cripto",
+  "url": "https://premio.elisaofiscal.net/",
+  "description": "Monitor em tempo real do prêmio (spread %) de criptomoedas entre exchanges globais e locais, para traders de arbitragem. Inclui kimchi premium, alertas configuráveis, prêmio líquido com taxas e histórico.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Web",
+  "browserRequirements": "Requer JavaScript",
+  "inLanguage": "pt-BR",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
+  "author": { "@type": "Person", "name": "João Abitante", "url": "https://github.com/joaoabitante" },
+  "license": "https://github.com/joaoabitante/premioelisaofiscal/blob/main/LICENSE"
+}
+</script>
 <style>
 :root {
   --page:#0d0d0d; --surface:#1a1a19; --surface-2:#222220;
@@ -32,7 +67,7 @@ button { font-family:inherit; }
 .topbar { position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:10px 20px; background:rgba(13,13,13,.92); backdrop-filter:blur(6px); border-bottom:1px solid var(--border); }
 .brand { display:flex; align-items:center; gap:10px; }
 .brand-bolt { font-size:26px; }
-.brand strong { font-size:17px; letter-spacing:.02em; }
+.brand h1 { font-size:17px; letter-spacing:.02em; margin:0; font-weight:700; }
 .brand small { display:block; color:var(--muted); font-size:11.5px; }
 .asset-tabs { display:flex; gap:6px; flex-wrap:wrap; }
 .asset-tab { background:var(--surface); border:1px solid var(--border); color:var(--ink-2); padding:7px 14px; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; transition:background .2s,color .2s; }
@@ -60,6 +95,14 @@ main { max-width:1280px; margin:0 auto; padding:18px 20px 40px; display:grid; ga
 .card h3 { font-size:13px; color:var(--ink-2); margin:14px 0 6px; }
 .foot-note { color:var(--muted); font-size:12px; margin:10px 2px 0; }
 .foot-note.foot-warn { color:var(--warn); }
+
+.about-card h2 { margin-bottom:4px; }
+.about-card details { border-bottom:1px solid var(--grid); padding:10px 2px; }
+.about-card details:last-child { border-bottom:none; }
+.about-card summary { cursor:pointer; color:var(--ink-2); font-weight:600; font-size:14px; }
+.about-card summary:hover { color:var(--ink); }
+.about-card p { color:var(--muted); font-size:13.5px; line-height:1.6; margin:8px 0 2px; }
+.about-card a { color:var(--accent); }
 
 .privacy-note { border:1px solid rgba(12,163,12,.3); background:rgba(12,163,12,.06); border-radius:12px; padding:10px 16px; color:var(--ink-2); font-size:13px; }
 .privacy-note b { color:var(--up); }
@@ -196,8 +239,8 @@ a.d-value:hover { text-decoration:underline; }
   <div class="brand">
     <span class="brand-bolt">⚡</span>
     <div>
-      <strong>Prêmio Cripto</strong>
-      <small>100% navegador · nada é gravado</small>
+      <h1>Prêmio Cripto</h1>
+      <small>arbitragem entre exchanges · 100% navegador · nada é gravado</small>
     </div>
   </div>
   <nav class="asset-tabs" id="assetTabs" aria-label="Selecionar ativo"></nav>
@@ -213,6 +256,10 @@ a.d-value:hover { text-decoration:underline; }
 <div class="toasts" id="toasts" aria-live="polite"></div>
 
 <main>
+  <noscript>
+    <div class="privacy-note">O Prêmio Cripto busca os preços das exchanges em tempo real e por isso
+    precisa de JavaScript. Ative o JavaScript no navegador para ver o painel de arbitragem.</div>
+  </noscript>
   <div class="privacy-note">
     <b>Modo anônimo:</b> este arquivo roda inteiro no seu navegador. Nenhum dado é gravado
     (sem cookies, sem localStorage, sem servidor) — histórico, taxas e alertas vivem só nesta aba
@@ -292,6 +339,34 @@ a.d-value:hover { text-decoration:underline; }
       <ol class="alert-log" id="alertLog"><li class="empty">Nenhum alerta ainda.</li></ol>
     </section>
   </div>
+
+  <section class="card about-card">
+    <h2>Perguntas frequentes</h2>
+    <details>
+      <summary>O que é o prêmio (spread) entre exchanges?</summary>
+      <p>É a diferença percentual entre o preço de uma criptomoeda em uma exchange local
+      (como Mercado Bitcoin ou Foxbit, em reais) e o preço de referência nas exchanges globais
+      (Binance, Coinbase, Kraken, em dólar), já convertido pelo câmbio do momento. A fórmula é
+      <em>Prêmio = Preço local ÷ (Preço global × Câmbio) − 1</em>. Prêmio positivo significa que
+      o ativo está mais caro na exchange local; negativo, mais barato. Traders de arbitragem
+      compram onde está barato e vendem onde está caro antes que o spread feche.</p>
+    </details>
+    <details>
+      <summary>O que é o kimchi premium?</summary>
+      <p>É o nome dado ao prêmio das exchanges sul-coreanas (Upbit, Bithumb), historicamente uma
+      das distorções de preço mais conhecidas do mercado cripto — o Bitcoin já chegou a ser
+      negociado mais de 10% acima do preço global na Coreia do Sul. Este painel calcula o kimchi
+      premium ao vivo, junto com o prêmio das exchanges brasileiras e de outras regiões.</p>
+    </details>
+    <details>
+      <summary>Este site é seguro e anônimo?</summary>
+      <p>Sim. A página roda 100% no seu navegador: não existe servidor coletando dados, não há
+      cookies nem cadastro, e nada fica gravado ao fechar a aba. As cotações vêm diretamente das
+      APIs públicas das exchanges. O código é aberto (licença MIT) e pode ser auditado no
+      <a href="https://github.com/joaoabitante/premioelisaofiscal" target="_blank" rel="noopener noreferrer">GitHub</a>.
+      O painel é somente monitoramento — não executa ordens e não é recomendação de investimento.</p>
+    </details>
+  </section>
 </main>
 
 <footer class="site-footer">
