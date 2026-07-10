@@ -45,8 +45,10 @@ Ativos: **BTC, ETH, SOL, XRP, USDT** (edite `ASSETS` em [src/exchanges.js](src/e
 
 ### 🔒 Versão anônima — arquivo único, 100% navegador
 
-Abra [premio-cripto-anonimo.html](premio-cripto-anonimo.html) com **duplo clique** — não precisa de
-Node, servidor nem instalação. Feita para não deixar rastro algum:
+Abra [index.html](index.html) com **duplo clique** — não precisa de Node, servidor nem instalação.
+É também o arquivo servido em hospedagens estáticas (**Cloudflare Pages**, GitHub Pages, Netlify):
+basta apontar o deploy para a raiz do repositório, sem etapa de build.
+Feita para não deixar rastro algum:
 
 - **Nada é gravado**: sem cookies, sem localStorage, sem banco, sem servidor — histórico, taxas e
   alertas vivem só na memória da aba e desaparecem ao fechá-la
