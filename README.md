@@ -65,6 +65,10 @@ Feita para não deixar rastro algum:
 📄 O modelo de ameaças completo — o que terceiros conseguem ver e como zerar até isso — está no
 **[PRIVACY.md](PRIVACY.md)**.
 
+🔒 Segurança do repo e reporte de vulnerabilidades: **[SECURITY.md](SECURITY.md)**.  
+Checklist do que o dono da conta GitHub precisa alterar (2FA, e-mail, PRs Cloudflare, branch protection):
+**[docs/CHECKLIST-SEGURANCA-GITHUB.md](docs/CHECKLIST-SEGURANCA-GITHUB.md)**.
+
 Limitações: NovaDAX, Bitso e Bitfinex não permitem chamadas diretas do navegador (CORS), então só
 existem na versão com servidor; e o histórico do gráfico acumula apenas enquanto a aba está aberta.
 

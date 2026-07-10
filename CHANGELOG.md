@@ -3,6 +3,13 @@
 Todas as mudanças relevantes do **Prêmio Cripto** são registradas aqui.
 O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/) e o versionamento é [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.5.2] — 2026-07-10
+
+### Segurança
+- `.gitignore` reforçado: `.env*`, chaves, `.claude/` / `.cursor/` / `.grok/`, `.wrangler/`, temporários de teste
+- Pasta `.claude/` removida do versionamento (config de IDE/agente não deve ir ao GitHub)
+- Novo [SECURITY.md](SECURITY.md) e checklist acionável: [docs/CHECKLIST-SEGURANCA-GITHUB.md](docs/CHECKLIST-SEGURANCA-GITHUB.md)
+
 ## [1.5.1] — 2026-07-10
 
 ### Alterado

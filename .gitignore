@@ -1,5 +1,38 @@
+# Dependências e build
 node_modules/
+.wrangler/
+dist/
+.cache/
+
+# Dados locais do servidor (histórico de preços — não versionar)
 data/
+
+# Segredos e ambiente
 .env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.key
+id_rsa*
+*.credentials
+.npmrc
+
+# Logs e SO
 *.log
 .DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDEs / agentes (config local — não publicar)
+.claude/
+.cursor/
+.grok/
+.vscode/
+.idea/
+*.swp
+*~
+
+# Temporários de teste
+_tmp_*.js
+_test_*.mjs

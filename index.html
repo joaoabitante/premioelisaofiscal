@@ -562,7 +562,7 @@ a.d-value:hover { text-decoration:underline; }
     Não é recomendação de investimento. Câmbio: <span id="fxSource">—</span>.
   </div>
   <div class="footer-links">
-    <button class="btn-link" id="btnChangelog" type="button">📋 v1.5.1 · atualizações</button>
+    <button class="btn-link" id="btnChangelog" type="button">📋 v1.5.2 · atualizações</button>
     <a href="#" id="linkProjects" target="_blank" rel="noopener noreferrer">Conheça meus outros projetos →</a>
     <button class="btn btn-heart" id="btnDonateFooter" type="button">♥ Fazer uma doação</button>
   </div>
@@ -1620,6 +1620,9 @@ $('donateList').addEventListener('click', async (ev) => {
 
 // ═════════ Log de atualizações ═════════
 const CHANGELOG = [
+  { v: '1.5.2', date: '10/07/2026', items: [
+    'Segurança: .gitignore reforçado; .claude/ fora do Git; SECURITY.md + checklist GitHub em docs/',
+  ] },
   { v: '1.5.1', date: '10/07/2026', items: [
     'Calculadora de IR: valores em R$ (base do imposto) com $ (dólar) ao lado só para comparação, usando o câmbio ao vivo',
     'Campos de entrada com prefixo R$ e placeholders no formato brasileiro',
