@@ -12,6 +12,8 @@ server.js
 package.json
 package-lock.json
 README.md
+CHANGELOG.md
+PRIVACY.md
 LICENSE
 .gitignore
 .assetsignore

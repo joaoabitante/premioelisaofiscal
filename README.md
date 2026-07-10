@@ -62,6 +62,9 @@ Feita para não deixar rastro algum:
 - O único rastro que resta são requisições HTTPS comuns do seu IP para as exchanges (o mesmo que
   visitar o site delas) — para ocultar o IP, use VPN ou Tor
 
+📄 O modelo de ameaças completo — o que terceiros conseguem ver e como zerar até isso — está no
+**[PRIVACY.md](PRIVACY.md)**.
+
 Limitações: NovaDAX, Bitso e Bitfinex não permitem chamadas diretas do navegador (CORS), então só
 existem na versão com servidor; e o histórico do gráfico acumula apenas enquanto a aba está aberta.
 

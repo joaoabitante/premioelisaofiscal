@@ -32,9 +32,18 @@ poller.onUpdate((state) => {
   for (const res of sseClients) res.write(payload);
 });
 
+// Headers de segurança/privacidade em toda resposta: sem sniffing de tipo,
+// sem referrer vazando para terceiros, sem embutir o painel em iframes.
+const SEC_HEADERS = {
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'no-referrer',
+  'X-Frame-Options': 'DENY',
+};
+
 function sendJSON(res, status, obj) {
   const body = JSON.stringify(obj);
   res.writeHead(status, {
+    ...SEC_HEADERS,
     'Content-Type': 'application/json; charset=utf-8',
     'Cache-Control': 'no-store',
   });
@@ -51,12 +60,13 @@ async function serveStatic(res, urlPath) {
   try {
     const data = await readFile(filePath);
     res.writeHead(200, {
+      ...SEC_HEADERS,
       'Content-Type': MIME[path.extname(filePath)] || 'application/octet-stream',
       'Cache-Control': 'no-cache',
     });
     res.end(data);
   } catch {
-    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.writeHead(404, { ...SEC_HEADERS, 'Content-Type': 'text/plain; charset=utf-8' });
     res.end('404 — não encontrado');
   }
 }
@@ -78,6 +88,7 @@ const server = http.createServer(async (req, res) => {
 
   if (url.pathname === '/api/stream') {
     res.writeHead(200, {
+      ...SEC_HEADERS,
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-store',
       Connection: 'keep-alive',

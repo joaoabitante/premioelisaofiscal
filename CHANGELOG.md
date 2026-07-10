@@ -3,6 +3,16 @@
 Todas as mudanças relevantes do **Prêmio Cripto** são registradas aqui.
 O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/) e o versionamento é [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.4.1] — 2026-07-09
+
+### Segurança e privacidade
+- Auditoria completa de metadados/perfilamento com correções:
+  - Headers de segurança servidos pelo edge (`_headers`): CSP com `frame-ancestors 'none'`, `X-Frame-Options`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, COOP/CORP e HSTS
+  - `Permissions-Policy` com opt-out explícito das APIs de perfilamento por anúncios do navegador (Topics, FLoC, ad-auction) e de sensores/câmera/microfone/geolocalização
+  - Telemetria NEL/Report-To injetada pela CDN **cancelada** (`max_age: 0`)
+  - `rel="noreferrer"` e `Referrer-Policy` também na versão com servidor, que agora responde com os mesmos headers de endurecimento
+- Novo [PRIVACY.md](PRIVACY.md): modelo de ameaças honesto — o que o projeto coleta (nada), o que terceiros inevitavelmente veem (IP/Origin) e como o visitante zera até isso (VPN/Tor/DoH/arquivo local)
+
 ## [1.4.0] — 2026-07-09
 
 ### Adicionado

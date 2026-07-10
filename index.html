@@ -372,7 +372,9 @@ a.d-value:hover { text-decoration:underline; }
       <p>Sim. A página roda 100% no seu navegador: não existe servidor coletando dados, não há
       cookies nem cadastro, e nada fica gravado ao fechar a aba. As cotações vêm diretamente das
       APIs públicas das exchanges. O código é aberto (licença MIT) e pode ser auditado no
-      <a href="https://github.com/joaoabitante/premioelisaofiscal" target="_blank" rel="noopener noreferrer">GitHub</a>.
+      <a href="https://github.com/joaoabitante/premioelisaofiscal" target="_blank" rel="noopener noreferrer">GitHub</a> —
+      o modelo de ameaças completo (o que terceiros conseguem ver e como zerar até isso) está no
+      <a href="https://github.com/joaoabitante/premioelisaofiscal/blob/main/PRIVACY.md" target="_blank" rel="noopener noreferrer">PRIVACY.md</a>.
       O painel é somente monitoramento — não executa ordens e não é recomendação de investimento.</p>
     </details>
   </section>
@@ -384,7 +386,7 @@ a.d-value:hover { text-decoration:underline; }
     Não é recomendação de investimento. Câmbio: <span id="fxSource">—</span>.
   </div>
   <div class="footer-links">
-    <button class="btn-link" id="btnChangelog" type="button">📋 v1.4.0 · atualizações</button>
+    <button class="btn-link" id="btnChangelog" type="button">📋 v1.4.1 · atualizações</button>
     <a href="#" id="linkProjects" target="_blank" rel="noopener noreferrer">Conheça meus outros projetos →</a>
     <button class="btn btn-heart" id="btnDonateFooter" type="button">♥ Fazer uma doação</button>
   </div>
@@ -1181,6 +1183,11 @@ $('donateList').addEventListener('click', async (ev) => {
 
 // ═════════ Log de atualizações ═════════
 const CHANGELOG = [
+  { v: '1.4.1', date: '09/07/2026', items: [
+    'Auditoria de privacidade: headers de segurança (CSP, anti-iframe, nosniff, HSTS)',
+    'Opt-out das APIs de perfilamento do navegador (Topics/FLoC) e cancelamento da telemetria NEL da CDN',
+    'PRIVACY.md: modelo de ameaças completo — o que terceiros veem e como zerar',
+  ] },
   { v: '1.4.0', date: '09/07/2026', items: [
     '12 novas exchanges: Brasil Bitcoin e Bity 🇧🇷, bitbank e bitFlyer 🇯🇵, BtcTurk 🇹🇷, Coinone 🇰🇷, CoinDCX 🇮🇳, Luno 🇿🇦, Buda 🇨🇱, BTC Markets 🇦🇺, Gemini e Bitstamp 🌐',
     'Novas moedas: JPY, TRY, INR, ZAR, CLP e AUD (câmbio automático)',

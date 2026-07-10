@@ -199,7 +199,7 @@ const rowCache = new Map(); // exId -> { tr, cells, lastPrice }
 function makeRow(ex) {
   const tr = document.createElement('tr');
   tr.innerHTML = `
-    <td><span class="ex-name"><span class="ex-chip"></span><a href="${ex.url}" target="_blank" rel="noopener">${ex.name}</a></span></td>
+    <td><span class="ex-name"><span class="ex-chip"></span><a href="${ex.url}" target="_blank" rel="noopener noreferrer">${ex.name}</a></span></td>
     <td class="market">${ex.currency} · ${ex.region}</td>
     <td class="num price-cell"></td>
     <td class="num price-usd"></td>
