@@ -2,6 +2,10 @@
 
 **Monitor open-source de prêmio (spread %) de criptomoedas entre exchanges globais e locais — em tempo real.**
 
+### 🌐 Use online: [premio.elisaofiscal.net](https://premio.elisaofiscal.net)
+
+Roda 100% no seu navegador (modo anônimo — nada é gravado em servidor algum).
+
 Traders de arbitragem precisam saber, em segundos, quando o preço de um ativo está desalinhado
 entre exchanges — comprar na mais barata, vender na mais cara, antes que o spread feche.
 Este painel monitora esse desalinhamento continuamente (incluindo o famoso *kimchi premium* coreano
