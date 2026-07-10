@@ -31,7 +31,7 @@ Binance, Bybit e OKX cotam em USDT; o painel trata USDT ≈ USD na referência g
 
 | Globais (referência) | Locais / regionais |
 |---|---|
-| Binance, Coinbase, Kraken, Bybit, OKX, Bitfinex | 🇧🇷 Mercado Bitcoin, Foxbit, NovaDAX · 🇲🇽 Bitso · 🇰🇷 Upbit, Bithumb |
+| Binance, Coinbase, Kraken, Bybit, OKX, Bitfinex, Gemini, Bitstamp | 🇧🇷 Mercado Bitcoin, Foxbit, NovaDAX, Brasil Bitcoin, Bity · 🇲🇽 Bitso · 🇰🇷 Upbit, Bithumb, Coinone · 🇯🇵 bitFlyer, bitbank · 🇹🇷 BtcTurk · 🇮🇳 CoinDCX · 🇿🇦 Luno · 🇨🇱 Buda · 🇦🇺 BTC Markets |
 
 Ativos: **BTC, ETH, SOL, XRP, USDT** (edite `ASSETS` em [src/exchanges.js](src/exchanges.js)).
 

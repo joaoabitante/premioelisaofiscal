@@ -16,7 +16,7 @@
     (o mesmo que visitar o site delas). Para ocultar o IP, use VPN/Tor.
   ═══════════════════════════════════════════════════ -->
 <meta name="referrer" content="no-referrer" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: 'self'; connect-src https://api.binance.com https://api.exchange.coinbase.com https://api.kraken.com https://api.bybit.com https://www.okx.com https://api.mercadobitcoin.net https://api.foxbit.com.br https://api.upbit.com https://api.bithumb.com https://open.er-api.com https://cdn.jsdelivr.net; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: 'self'; connect-src https://api.binance.com https://api.exchange.coinbase.com https://api.kraken.com https://api.bybit.com https://www.okx.com https://api.gemini.com https://api.mercadobitcoin.net https://api.foxbit.com.br https://brasilbitcoin.com.br https://api.bitpreco.com https://api.upbit.com https://api.bithumb.com https://public.bitbank.cc https://public.coindcx.com https://api.btcmarkets.net https://open.er-api.com https://cdn.jsdelivr.net; base-uri 'none'; form-action 'none'" />
 <title>Prêmio Cripto — Arbitragem de Criptomoedas entre Exchanges em Tempo Real</title>
 <meta name="description" content="Compare o preço de Bitcoin e criptomoedas entre Binance, Coinbase, Mercado Bitcoin, Foxbit, Upbit e mais. Prêmio (spread %) em tempo real para arbitragem, kimchi premium, alertas e histórico — grátis, open source e 100% no navegador." />
 <link rel="canonical" href="https://premio.elisaofiscal.net/" />
@@ -103,6 +103,15 @@ main { max-width:1280px; margin:0 auto; padding:18px 20px 40px; display:grid; ga
 .about-card summary:hover { color:var(--ink); }
 .about-card p { color:var(--muted); font-size:13.5px; line-height:1.6; margin:8px 0 2px; }
 .about-card a { color:var(--accent); }
+
+.btn-link { background:none; border:0; color:var(--ink-2); cursor:pointer; font-size:13px; padding:0; text-decoration:underline; text-underline-offset:3px; }
+.btn-link:hover { color:var(--ink); }
+.changelog { max-height:340px; overflow-y:auto; }
+.changelog .cl-version { display:flex; align-items:baseline; gap:10px; margin:14px 0 4px; }
+.changelog .cl-version:first-child { margin-top:4px; }
+.changelog .cl-version b { color:var(--accent); font-size:15px; }
+.changelog .cl-version span { color:var(--muted); font-size:12px; }
+.changelog ul { margin:0; padding-left:20px; color:var(--ink-2); font-size:13.5px; line-height:1.6; }
 
 .privacy-note { border:1px solid rgba(12,163,12,.3); background:rgba(12,163,12,.06); border-radius:12px; padding:10px 16px; color:var(--ink-2); font-size:13px; }
 .privacy-note b { color:var(--up); }
@@ -307,7 +316,7 @@ a.d-value:hover { text-decoration:underline; }
     </div>
     <p class="foot-note" id="netNote" hidden>Líquido = prêmio − taxa de trading local − taxa de trading da global de referência − taxa de saque. Edite em “Taxas”.</p>
     <p class="foot-note foot-warn" id="corsNote" hidden></p>
-    <p class="foot-note">NovaDAX, Bitso e Bitfinex não permitem chamadas diretas do navegador (CORS) e só existem na versão com servidor deste projeto.</p>
+    <p class="foot-note">Algumas exchanges não permitem chamadas diretas do navegador (CORS) e só existem na <a href="https://github.com/joaoabitante/premioelisaofiscal" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">versão com servidor</a>: NovaDAX, Bitso, Bitfinex, bitFlyer, BtcTurk, Coinone, Luno, Buda e Bitstamp.</p>
   </section>
 
   <div class="two-col">
@@ -375,10 +384,18 @@ a.d-value:hover { text-decoration:underline; }
     Não é recomendação de investimento. Câmbio: <span id="fxSource">—</span>.
   </div>
   <div class="footer-links">
+    <button class="btn-link" id="btnChangelog" type="button">📋 v1.4.0 · atualizações</button>
     <a href="#" id="linkProjects" target="_blank" rel="noopener noreferrer">Conheça meus outros projetos →</a>
     <button class="btn btn-heart" id="btnDonateFooter" type="button">♥ Fazer uma doação</button>
   </div>
 </footer>
+
+<dialog id="changelogModal" class="modal">
+  <h2>📋 Log de atualizações</h2>
+  <div class="changelog" id="changelogList"></div>
+  <p class="modal-hint">Histórico completo no <a href="https://github.com/joaoabitante/premioelisaofiscal/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">CHANGELOG.md</a>.</p>
+  <div class="modal-actions"><button class="btn btn-primary" id="changelogClose" type="button">Fechar</button></div>
+</dialog>
 
 <dialog id="feesModal" class="modal">
   <h2>Taxas por exchange</h2>
@@ -442,10 +459,16 @@ const PROBE_URLS = {
   kraken: 'https://api.kraken.com/0/public/Time',
   bybit: 'https://api.bybit.com/v5/market/time',
   okx: 'https://www.okx.com/api/v5/public/time',
+  gemini: 'https://api.gemini.com/v1/pubticker/btcusd',
   mercadobitcoin: 'https://api.mercadobitcoin.net/api/v4/tickers?symbols=BTC-BRL',
   foxbit: 'https://api.foxbit.com.br/rest/v3/markets/ticker/24hr',
+  brasilbitcoin: 'https://brasilbitcoin.com.br/API/prices/BTC',
+  bity: 'https://api.bitpreco.com/btc-brl/ticker',
   upbit: 'https://api.upbit.com/v1/ticker?markets=KRW-BTC',
   bithumb: 'https://api.bithumb.com/public/ticker/BTC_KRW',
+  bitbank: 'https://public.bitbank.cc/btc_jpy/ticker',
+  coindcx: 'https://public.coindcx.com/market_data/current_prices',
+  btcmarkets: 'https://api.btcmarkets.net/v3/markets/BTC-AUD/ticker',
 };
 const corsCache = new Map(); // exId -> { verdict, ts }
 async function classifyFailure(ex, err) {
@@ -512,6 +535,12 @@ const EXCHANGES = [
       return perAsset(assets.filter((a) => a !== 'USDT'), async (a) =>
         num((await getJSON('https://www.okx.com/api/v5/market/ticker?instId=' + a + '-USDT')).data?.[0]?.last));
     } },
+  { id: 'gemini', name: 'Gemini', kind: 'global', currency: 'USD', region: 'Global',
+    url: 'https://www.gemini.com', fees: { trading: 0.4, withdrawal: 0 },
+    fetchPrices(assets) {
+      return perAsset(assets.filter((a) => a !== 'USDT'), async (a) =>
+        num((await getJSON('https://api.gemini.com/v1/pubticker/' + a.toLowerCase() + 'usd')).last));
+    } },
   { id: 'mercadobitcoin', name: 'Mercado Bitcoin', kind: 'local', currency: 'BRL', region: 'Brasil',
     url: 'https://www.mercadobitcoin.com.br', fees: { trading: 0.7, withdrawal: 0 },
     async fetchPrices(assets) {
@@ -545,6 +574,42 @@ const EXCHANGES = [
       const out = {};
       for (const a of assets) out[a] = num(data.data?.[a]?.closing_price);
       return out;
+    } },
+  { id: 'brasilbitcoin', name: 'Brasil Bitcoin', kind: 'local', currency: 'BRL', region: 'Brasil',
+    url: 'https://brasilbitcoin.com.br', fees: { trading: 0.5, withdrawal: 0 },
+    fetchPrices(assets) {
+      return perAsset(assets, async (a) =>
+        num((await getJSON('https://brasilbitcoin.com.br/API/prices/' + a)).last));
+    } },
+  { id: 'bity', name: 'Bity (BitPreço)', kind: 'local', currency: 'BRL', region: 'Brasil',
+    url: 'https://bity.com.br', fees: { trading: 0.5, withdrawal: 0 },
+    fetchPrices(assets) {
+      return perAsset(assets, async (a) => {
+        const data = await getJSON('https://api.bitpreco.com/' + a.toLowerCase() + '-brl/ticker');
+        return data.success ? num(data.last) : null;
+      });
+    } },
+  { id: 'bitbank', name: 'bitbank', kind: 'local', currency: 'JPY', region: 'Japão',
+    url: 'https://bitbank.cc', fees: { trading: 0.12, withdrawal: 0 },
+    fetchPrices(assets) {
+      return perAsset(assets, async (a) => {
+        const data = await getJSON('https://public.bitbank.cc/' + a.toLowerCase() + '_jpy/ticker');
+        return data.success === 1 ? num(data.data?.last) : null;
+      });
+    } },
+  { id: 'coindcx', name: 'CoinDCX', kind: 'local', currency: 'INR', region: 'Índia',
+    url: 'https://coindcx.com', fees: { trading: 0.5, withdrawal: 0 },
+    async fetchPrices(assets) {
+      const data = await getJSON('https://public.coindcx.com/market_data/current_prices');
+      const out = {};
+      for (const a of assets) out[a] = num(data[a + 'INR']);
+      return out;
+    } },
+  { id: 'btcmarkets', name: 'BTC Markets', kind: 'local', currency: 'AUD', region: 'Austrália',
+    url: 'https://www.btcmarkets.net', fees: { trading: 0.85, withdrawal: 0 },
+    fetchPrices(assets) {
+      return perAsset(assets, async (a) =>
+        num((await getJSON('https://api.btcmarkets.net/v3/markets/' + a + '-AUD/ticker')).lastPrice));
     } },
 ];
 
@@ -699,8 +764,11 @@ function setConn(mode) {
 }
 
 // ═════════ Cores das séries ═════════
-const SERIES_COLORS = { mercadobitcoin: '#3987e5', foxbit: '#d95926', upbit: '#c98500', bithumb: '#d55181' };
-const EXTRA_COLORS = ['#199e70', '#9085e9', '#3987e5', '#c98500'];
+const SERIES_COLORS = {
+  mercadobitcoin: '#3987e5', foxbit: '#d95926', upbit: '#c98500', bithumb: '#d55181',
+  brasilbitcoin: '#199e70', bity: '#9085e9', bitbank: '#86b6ef', coindcx: '#e87ba4', btcmarkets: '#eb6834',
+};
+const EXTRA_COLORS = ['#199e70', '#9085e9', '#3987e5', '#c98500', '#86b6ef', '#e87ba4'];
 let extraIdx = 0;
 const colorOf = (id) => SERIES_COLORS[id] || (SERIES_COLORS[id] = EXTRA_COLORS[extraIdx++ % EXTRA_COLORS.length]);
 
@@ -1110,6 +1178,37 @@ $('donateList').addEventListener('click', async (ev) => {
     setTimeout(() => (btn.textContent = 'copiar'), 1500);
   } catch {}
 });
+
+// ═════════ Log de atualizações ═════════
+const CHANGELOG = [
+  { v: '1.4.0', date: '09/07/2026', items: [
+    '12 novas exchanges: Brasil Bitcoin e Bity 🇧🇷, bitbank e bitFlyer 🇯🇵, BtcTurk 🇹🇷, Coinone 🇰🇷, CoinDCX 🇮🇳, Luno 🇿🇦, Buda 🇨🇱, BTC Markets 🇦🇺, Gemini e Bitstamp 🌐',
+    'Novas moedas: JPY, TRY, INR, ZAR, CLP e AUD (câmbio automático)',
+    'Log de atualizações no rodapé (você está aqui!)',
+  ] },
+  { v: '1.3.0', date: '09/07/2026', items: [
+    'Site publicado em premio.elisaofiscal.net (Cloudflare)',
+    'SEO completo: Open Graph, JSON-LD, FAQ, sitemap e robots',
+    'Detector de bloqueio CORS — distingue "API fora do ar" de "origem bloqueada"',
+  ] },
+  { v: '1.2.0', date: '09/07/2026', items: [
+    'Tile "Janela de arbitragem" com direção compre → venda',
+    'Pills verde/vermelho com setas, sparklines de 3 h na tabela',
+    'Toasts de alerta, barra de progresso da coleta e skeleton loading',
+  ] },
+  { v: '1.1.0', date: '09/07/2026', items: [
+    'Versão anônima 100% navegador: zero armazenamento, CSP restritiva',
+    'Doação via LiveTip',
+  ] },
+  { v: '1.0.0', date: '09/07/2026', items: [
+    'Lançamento: prêmio em tempo real entre exchanges globais e locais, gráfico 24h/7d, alertas, prêmio líquido com taxas',
+  ] },
+];
+$('changelogList').innerHTML = CHANGELOG.map((r) =>
+  '<div class="cl-version"><b>v' + r.v + '</b><span>' + r.date + '</span></div><ul>' +
+  r.items.map((i) => '<li>' + i + '</li>').join('') + '</ul>').join('');
+$('btnChangelog').addEventListener('click', () => $('changelogModal').showModal());
+$('changelogClose').addEventListener('click', () => $('changelogModal').close());
 
 // ═════════ Abas / controles ═════════
 $('assetTabs').innerHTML = ASSETS.map((a) =>

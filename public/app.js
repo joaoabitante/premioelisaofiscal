@@ -20,6 +20,16 @@ const SERIES_COLORS = {
   bitso: '#199e70',
   upbit: '#c98500',
   bithumb: '#d55181',
+  brasilbitcoin: '#86b6ef',
+  bity: '#e87ba4',
+  bitbank: '#eb6834',
+  bitflyer: '#008300',
+  btcturk: '#b8b344',
+  coinone: '#6da7ec',
+  coindcx: '#c25e9e',
+  luno: '#e0a458',
+  buda: '#7bc9a4',
+  btcmarkets: '#a08cd0',
 };
 const EXTRA_COLORS = ['#3987e5', '#199e70', '#c98500', '#9085e9', '#d55181', '#d95926'];
 let extraIdx = 0;

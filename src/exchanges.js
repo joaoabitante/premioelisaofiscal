@@ -178,6 +178,35 @@ export const EXCHANGES = [
 
   // ── Locais / regionais ─────────────────────────────────────────────────────
   {
+    id: 'gemini',
+    name: 'Gemini',
+    kind: 'global',
+    currency: 'USD',
+    region: 'Global',
+    url: 'https://www.gemini.com',
+    fees: { trading: 0.4, withdrawal: 0 },
+    fetchPrices(assets) {
+      return perAsset(
+        assets.filter((a) => a !== 'USDT'),
+        async (a) => num((await getJSON(`https://api.gemini.com/v1/pubticker/${a.toLowerCase()}usd`)).last)
+      );
+    },
+  },
+  {
+    id: 'bitstamp',
+    name: 'Bitstamp',
+    kind: 'global',
+    currency: 'USD',
+    region: 'Global',
+    url: 'https://www.bitstamp.net',
+    fees: { trading: 0.4, withdrawal: 0 },
+    fetchPrices(assets) {
+      return perAsset(assets, async (a) =>
+        num((await getJSON(`https://www.bitstamp.net/api/v2/ticker/${a.toLowerCase()}usd/`)).last)
+      );
+    },
+  },
+  {
     id: 'mercadobitcoin',
     name: 'Mercado Bitcoin',
     kind: 'local',
@@ -288,6 +317,158 @@ export const EXCHANGES = [
         out[a] = num(data.data?.[a]?.closing_price);
       }
       return out;
+    },
+  },
+  {
+    id: 'brasilbitcoin',
+    name: 'Brasil Bitcoin',
+    kind: 'local',
+    currency: 'BRL',
+    region: 'Brasil',
+    url: 'https://brasilbitcoin.com.br',
+    fees: { trading: 0.5, withdrawal: 0 },
+    fetchPrices(assets) {
+      return perAsset(assets, async (a) =>
+        num((await getJSON(`https://brasilbitcoin.com.br/API/prices/${a}`)).last)
+      );
+    },
+  },
+  {
+    id: 'bity',
+    name: 'Bity (BitPreço)',
+    kind: 'local',
+    currency: 'BRL',
+    region: 'Brasil',
+    url: 'https://bity.com.br',
+    fees: { trading: 0.5, withdrawal: 0 },
+    fetchPrices(assets) {
+      return perAsset(assets, async (a) => {
+        const data = await getJSON(`https://api.bitpreco.com/${a.toLowerCase()}-brl/ticker`);
+        return data.success ? num(data.last) : null;
+      });
+    },
+  },
+  {
+    id: 'coinone',
+    name: 'Coinone',
+    kind: 'local',
+    currency: 'KRW',
+    region: 'Coreia do Sul',
+    url: 'https://coinone.co.kr',
+    fees: { trading: 0.2, withdrawal: 0 },
+    fetchPrices(assets) {
+      return perAsset(assets, async (a) =>
+        num((await getJSON(`https://api.coinone.co.kr/public/v2/ticker_new/KRW/${a}`)).tickers?.[0]?.last)
+      );
+    },
+  },
+  {
+    id: 'bitflyer',
+    name: 'bitFlyer',
+    kind: 'local',
+    currency: 'JPY',
+    region: 'Japão',
+    url: 'https://bitflyer.com',
+    fees: { trading: 0.15, withdrawal: 0 },
+    fetchPrices(assets) {
+      return perAsset(
+        assets.filter((a) => !['SOL', 'USDT'].includes(a)),
+        async (a) => num((await getJSON(`https://api.bitflyer.com/v1/ticker?product_code=${a}_JPY`)).ltp)
+      );
+    },
+  },
+  {
+    id: 'bitbank',
+    name: 'bitbank',
+    kind: 'local',
+    currency: 'JPY',
+    region: 'Japão',
+    url: 'https://bitbank.cc',
+    fees: { trading: 0.12, withdrawal: 0 },
+    fetchPrices(assets) {
+      return perAsset(assets, async (a) => {
+        const data = await getJSON(`https://public.bitbank.cc/${a.toLowerCase()}_jpy/ticker`);
+        return data.success === 1 ? num(data.data?.last) : null;
+      });
+    },
+  },
+  {
+    id: 'btcturk',
+    name: 'BtcTurk',
+    kind: 'local',
+    currency: 'TRY',
+    region: 'Turquia',
+    url: 'https://www.btcturk.com',
+    fees: { trading: 0.35, withdrawal: 0 },
+    async fetchPrices(assets) {
+      const data = await getJSON('https://api.btcturk.com/api/v2/ticker');
+      const list = data.data || [];
+      const out = {};
+      for (const a of assets) {
+        const row = list.find((r) => r.pair === `${a}TRY`);
+        out[a] = row ? num(row.last) : null;
+      }
+      return out;
+    },
+  },
+  {
+    id: 'coindcx',
+    name: 'CoinDCX',
+    kind: 'local',
+    currency: 'INR',
+    region: 'Índia',
+    url: 'https://coindcx.com',
+    fees: { trading: 0.5, withdrawal: 0 },
+    async fetchPrices(assets) {
+      const data = await getJSON('https://public.coindcx.com/market_data/current_prices');
+      const out = {};
+      for (const a of assets) {
+        out[a] = num(data[`${a}INR`]);
+      }
+      return out;
+    },
+  },
+  {
+    id: 'luno',
+    name: 'Luno',
+    kind: 'local',
+    currency: 'ZAR',
+    region: 'África do Sul',
+    url: 'https://www.luno.com',
+    fees: { trading: 0.6, withdrawal: 0 },
+    fetchPrices(assets) {
+      return perAsset(assets, async (a) => {
+        const pair = `${a === 'BTC' ? 'XBT' : a}ZAR`;
+        return num((await getJSON(`https://api.luno.com/api/1/ticker?pair=${pair}`)).last_trade);
+      });
+    },
+  },
+  {
+    id: 'buda',
+    name: 'Buda',
+    kind: 'local',
+    currency: 'CLP',
+    region: 'Chile',
+    url: 'https://www.buda.com',
+    fees: { trading: 0.8, withdrawal: 0 },
+    fetchPrices(assets) {
+      return perAsset(assets, async (a) =>
+        num((await getJSON(`https://www.buda.com/api/v2/markets/${a.toLowerCase()}-clp/ticker`)).ticker?.last_price?.[0])
+      );
+    },
+  },
+  {
+    id: 'btcmarkets',
+    name: 'BTC Markets',
+    kind: 'local',
+    currency: 'AUD',
+    region: 'Austrália',
+    url: 'https://www.btcmarkets.net',
+    fees: { trading: 0.85, withdrawal: 0 },
+    fetchPrices(assets) {
+      return perAsset(assets, async (a) =>
+        num((await getJSON(`https://api.btcmarkets.net/v3/markets/${a}-AUD/ticker`)).lastPrice)
+      );
     },
   },
 ];
