@@ -59,6 +59,7 @@ main { max-width:1280px; margin:0 auto; padding:18px 20px 40px; display:grid; ga
 .card h2 { margin:0; font-size:15.5px; font-weight:600; }
 .card h3 { font-size:13px; color:var(--ink-2); margin:14px 0 6px; }
 .foot-note { color:var(--muted); font-size:12px; margin:10px 2px 0; }
+.foot-note.foot-warn { color:var(--warn); }
 
 .privacy-note { border:1px solid rgba(12,163,12,.3); background:rgba(12,163,12,.06); border-radius:12px; padding:10px 16px; color:var(--ink-2); font-size:13px; }
 .privacy-note b { color:var(--up); }
@@ -258,6 +259,7 @@ a.d-value:hover { text-decoration:underline; }
       </table>
     </div>
     <p class="foot-note" id="netNote" hidden>Líquido = prêmio − taxa de trading local − taxa de trading da global de referência − taxa de saque. Edite em “Taxas”.</p>
+    <p class="foot-note foot-warn" id="corsNote" hidden></p>
     <p class="foot-note">NovaDAX, Bitso e Bitfinex não permitem chamadas diretas do navegador (CORS) e só existem na versão com servidor deste projeto.</p>
   </section>
 
@@ -355,6 +357,38 @@ async function getJSON(url) {
     return await res.json();
   } finally { clearTimeout(timer); }
 }
+// Distingue "API fora do ar" de "exchange bloqueou esta origem (CORS)":
+// uma sondagem em modo no-cors alcança o servidor mesmo sem permissão de
+// origem — se ela responde (resposta opaca) mas a chamada normal falhou,
+// o problema é CORS, não a API. Resultado cacheado por 10 min.
+const PROBE_URLS = {
+  binance: 'https://api.binance.com/api/v3/ping',
+  coinbase: 'https://api.exchange.coinbase.com/products/BTC-USD/ticker',
+  kraken: 'https://api.kraken.com/0/public/Time',
+  bybit: 'https://api.bybit.com/v5/market/time',
+  okx: 'https://www.okx.com/api/v5/public/time',
+  mercadobitcoin: 'https://api.mercadobitcoin.net/api/v4/tickers?symbols=BTC-BRL',
+  foxbit: 'https://api.foxbit.com.br/rest/v3/markets/ticker/24hr',
+  upbit: 'https://api.upbit.com/v1/ticker?markets=KRW-BTC',
+  bithumb: 'https://api.bithumb.com/public/ticker/BTC_KRW',
+};
+const corsCache = new Map(); // exId -> { verdict, ts }
+async function classifyFailure(ex, err) {
+  if (/^HTTP \d/.test(err?.message || '')) return 'http'; // servidor respondeu: não é CORS
+  const cached = corsCache.get(ex.id);
+  if (cached && Date.now() - cached.ts < 10 * 60000) return cached.verdict;
+  let verdict = 'down';
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 5000);
+  try {
+    await fetch(PROBE_URLS[ex.id] || ex.url, { ...FETCH_OPTS, mode: 'no-cors', signal: ctrl.signal });
+    verdict = 'cors';
+  } catch { verdict = 'down'; }
+  finally { clearTimeout(timer); }
+  corsCache.set(ex.id, { verdict, ts: Date.now() });
+  return verdict;
+}
+
 const num = (v) => { const n = Number(v); return Number.isFinite(n) && n > 0 ? n : null; };
 async function perAsset(assets, fn) {
   const out = {};
@@ -496,13 +530,13 @@ async function cycle() {
   const fxP = refreshFx();
   const results = await Promise.all(EXCHANGES.map(async (ex) => {
     try { return { ex, prices: await ex.fetchPrices(ASSETS) }; }
-    catch (err) { return { ex, error: err.message || String(err) }; }
+    catch (err) { return { ex, error: err.message || String(err), kind: await classifyFailure(ex, err) }; }
   }));
   await fxP;
   S.fx = fxCache;
 
-  for (const { ex, prices, error } of results) {
-    if (error) { S.errors[ex.id] = { message: error, ts: now }; continue; }
+  for (const { ex, prices, error, kind } of results) {
+    if (error) { S.errors[ex.id] = { message: error, ts: now, kind }; continue; }
     delete S.errors[ex.id];
     for (const a of ASSETS) {
       const p = prices?.[a];
@@ -701,10 +735,20 @@ function renderTable() {
     rc.cells.spark.innerHTML = ex.kind === 'local' ? sparkline(hist[asset][ex.id]) : '<span class="na">—</span>';
     rc.cells.age.textContent = entry ? fmtAge(age) : '—';
 
+    const corsMsg = 'Esta exchange bloqueia chamadas do navegador a partir desta origem (CORS). ' +
+      'Os dados dela só estão disponíveis na versão com servidor do projeto.';
     let st = 'ok', label = 'OK', title = '';
-    if (!entry && err) { st = 'off'; label = 'offline'; title = err.message; }
+    if (!entry && err) {
+      st = 'off';
+      label = err.kind === 'cors' ? 'bloq. CORS' : 'offline';
+      title = err.kind === 'cors' ? corsMsg : err.message;
+    }
     else if (!entry) { st = 'warn'; label = 'sem par'; }
-    else if (age > STALE_MS || err) { st = 'warn'; label = 'instável'; title = err?.message || 'preço sem atualização'; }
+    else if (age > STALE_MS || err) {
+      st = 'warn';
+      label = 'instável';
+      title = err?.kind === 'cors' ? corsMsg : err?.message || 'preço sem atualização';
+    }
     rc.cells.status.className = 'status ' + st;
     rc.cells.statusText.textContent = label;
     rc.cells.status.title = title;
@@ -716,6 +760,15 @@ function renderTable() {
   document.querySelectorAll('.skel-row').forEach((r) => r.remove());
   for (const { e, pct } of localRows) update(e, pct, $('tbodyLocal'));
   for (const e of EXCHANGES.filter((x) => x.kind === 'global')) update(e, S.premiums[asset]?.[e.id], $('tbodyGlobal'));
+
+  // aviso agregado quando alguma exchange bloqueia esta origem
+  const blocked = EXCHANGES.filter((e) => S.errors[e.id]?.kind === 'cors').map((e) => e.name);
+  const note = $('corsNote');
+  note.hidden = blocked.length === 0;
+  if (blocked.length) {
+    note.textContent = '⚠️ ' + blocked.join(', ') + (blocked.length > 1 ? ' bloqueiam' : ' bloqueia') +
+      ' chamadas a partir desta origem (CORS) — não é falha da API. Dados disponíveis na versão com servidor.';
+  }
 }
 
 // ═════════ Gráfico SVG ═════════
