@@ -1,0 +1,17 @@
+# Upload de assets do Cloudflare Workers: sobe apenas o site estático
+# (o painel é o index.html da raiz — todo o resto é código-fonte/backend)
+node_modules
+.git
+.github
+.claude
+data
+src
+public
+docs
+server.js
+package.json
+package-lock.json
+README.md
+LICENSE
+.gitignore
+.assetsignore
