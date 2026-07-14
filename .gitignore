@@ -39,3 +39,6 @@ _test_*.mjs
 
 .vercel
 .env*
+
+.dev.vars*
+!.dev.vars.example
