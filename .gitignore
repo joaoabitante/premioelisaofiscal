@@ -36,3 +36,6 @@ Desktop.ini
 # Temporários de teste
 _tmp_*.js
 _test_*.mjs
+
+.vercel
+.env*
