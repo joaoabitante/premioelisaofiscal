@@ -1,4 +1,7 @@
-# ⚡ Prêmio Cripto
+﻿# ⚡ Prêmio Cripto
+
+> **Hospedagem:** este projeto **nao** faz deploy no Cloudflare Workers/Pages.
+> Plataforma principal: **Vercel**. Cloudflare, se usada, e apenas DNS (proxy cinza).
 
 **Monitor open-source de prêmio (spread %) de criptomoedas entre exchanges globais e locais — em tempo real.**
 
