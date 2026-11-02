@@ -10,7 +10,7 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/) e o vers
 
 ### Segurança
 - Cabeçalhos HTTP no `vercel.json` (a Vercel ignora o `_headers`, que foi removido): CSP com as mesmas exchanges liberadas em `connect-src` e `frame-ancestors 'none'`, HSTS, nosniff, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, Permissions-Policy e COOP/CORP. Até aqui o site no ar respondia só com o HSTS padrão da plataforma.
-- A CSP do cabeçalho não libera mais `cdn.jsdelivr.net`: o código não carrega nada de lá.
+- `connect-src` continua liberando `cdn.jsdelivr.net`: é de lá que vem a tabela de câmbio reserva (`@fawazahmed0/currency-api`).
 
 ## [1.6.0] — 2026-07-10
 

@@ -8,7 +8,7 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Content-Security-Policy", "value": "default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src https://api.binance.com https://api.exchange.coinbase.com https://api.kraken.com https://api.bybit.com https://www.okx.com https://api.gemini.com https://api.mercadobitcoin.net https://api.foxbit.com.br https://brasilbitcoin.com.br https://api.bitpreco.com https://api.upbit.com https://api.bithumb.com https://public.bitbank.cc https://public.coindcx.com https://api.btcmarkets.net https://open.er-api.com; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests" },
+        { "key": "Content-Security-Policy", "value": "default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src https://api.binance.com https://api.exchange.coinbase.com https://api.kraken.com https://api.bybit.com https://www.okx.com https://api.gemini.com https://api.mercadobitcoin.net https://api.foxbit.com.br https://brasilbitcoin.com.br https://api.bitpreco.com https://api.upbit.com https://api.bithumb.com https://public.bitbank.cc https://public.coindcx.com https://api.btcmarkets.net https://open.er-api.com https://cdn.jsdelivr.net; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests" },
         { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-Frame-Options", "value": "DENY" },
