@@ -3,6 +3,15 @@
 Todas as mudanças relevantes do **Prêmio Cripto** são registradas aqui.
 O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/) e o versionamento é [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.6.1] — 2026-11-02
+
+### Corrigido
+- `robots.txt` e `sitemap.xml` estavam na raiz do repositório, fora de `public/` (o `outputDirectory` da Vercel): no ar respondiam 404. Agora são publicados.
+
+### Segurança
+- Cabeçalhos HTTP no `vercel.json` (a Vercel ignora o `_headers`, que foi removido): CSP com as mesmas exchanges liberadas em `connect-src` e `frame-ancestors 'none'`, HSTS, nosniff, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, Permissions-Policy e COOP/CORP. Até aqui o site no ar respondia só com o HSTS padrão da plataforma.
+- A CSP do cabeçalho não libera mais `cdn.jsdelivr.net`: o código não carrega nada de lá.
+
 ## [1.6.0] — 2026-07-10
 
 ### Adicionado
